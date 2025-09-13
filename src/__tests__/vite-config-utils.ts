@@ -1,9 +1,10 @@
+// Node.jsのpathおよびfsモジュールをインポート
 import path from "node:path";
 import fs from "node:fs";
 
 /**
- * Extracts the Vite build.outDir from vite.config.ts
- * Handles both relative and absolute paths, accounting for Vite's root directory
+ * vite.config.tsからViteのbuild.outDirを抽出します。
+ * Viteのルートディレクトリを考慮して、相対パスと絶対パスの両方を処理します。
  */
 export async function getViteOutDir(packageRoot: string): Promise<string> {
   const viteConfigPath = path.join(packageRoot, "vite.config.ts");
@@ -12,7 +13,7 @@ export async function getViteOutDir(packageRoot: string): Promise<string> {
     throw new Error(`vite.config.ts not found at ${viteConfigPath}`);
   }
 
-  // Import the vite config dynamically
+  // Vite設定を動的にインポート
   const configModule = await import(viteConfigPath);
   const config =
     typeof configModule.default === "function"
@@ -22,12 +23,12 @@ export async function getViteOutDir(packageRoot: string): Promise<string> {
   let outDir = config.build?.outDir || "dist";
   const viteRoot = config.root || ".";
 
-  // If outDir is relative, resolve it relative to the vite root
+  // outDirが相対パスの場合、Viteルートからの相対パスとして解決
   if (!path.isAbsolute(outDir)) {
     const viteRootAbsolute = path.resolve(packageRoot, viteRoot);
     outDir = path.resolve(viteRootAbsolute, outDir);
   }
 
-  // Ensure the path is relative to packageRoot for consistency
+  // 一貫性のために、パスをpackageRootからの相対パスにする
   return path.relative(packageRoot, outDir);
 }

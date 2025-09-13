@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュール、プラグイン、サービス、およびElizaOSコアモジュールをインポート
 import {
   describe,
   expect,
@@ -15,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 
 describe("Error Handling", () => {
   beforeEach(() => {
-    // Use spyOn for logger methods
+    // loggerメソッドにspyOnを使用
     spyOn(logger, "info");
     spyOn(logger, "error");
     spyOn(logger, "warn");
@@ -23,17 +24,18 @@ describe("Error Handling", () => {
 
   describe("HELLO_WORLD Action Error Handling", () => {
     it("should log errors in action handlers", async () => {
-      // Find the action
+      // アクションハンドラ内のエラーがログに記録されることを確認
+      // アクションを検索
       const action = plugin.actions?.find((a) => a.name === "HELLO_WORLD");
 
       if (action && action.handler) {
-        // Force the handler to throw an error
+        // ハンドラがエラーをスローするように強制
         const mockError = new Error("Test error in action");
         spyOn(console, "error").mockImplementation(() => {});
 
-        // Create a custom mock runtime
+        // カスタムモックランタイムを作成
         const mockRuntime = {
-          // This is just a simple object for testing
+          // これはテスト用の単純なオブジェクト
         } as unknown as IAgentRuntime;
 
         const mockMessage = {
@@ -53,10 +55,10 @@ describe("Error Handling", () => {
 
         const mockCallback = mock();
 
-        // Mock the logger.error to verify it's called
+        // logger.errorが呼び出されることを確認するためにモック化
         spyOn(logger, "error");
 
-        // Test the error handling by observing the behavior
+        // エラーハンドリングをテストするために挙動を観察
         try {
           await action.handler(
             mockRuntime,
@@ -67,11 +69,11 @@ describe("Error Handling", () => {
             [],
           );
 
-          // If we get here, no error was thrown, which is okay
-          // In a real application, error handling might be internal
+          // ここに到達した場合、エラーはスローされなかったが、それでも問題ない
+          // 実際のアプリケーションでは、エラーハンドリングは内部的に行われる可能性がある
           expect(mockCallback).toHaveBeenCalled();
         } catch (error) {
-          // If error is thrown, ensure it's handled correctly
+          // エラーがスローされた場合、正しく処理されたことを確認
           expect(logger.error).toHaveBeenCalled();
         }
       }
@@ -80,6 +82,7 @@ describe("Error Handling", () => {
 
   describe("Service Error Handling", () => {
     it("should throw an error when stopping non-existent service", async () => {
+      // 存在しないサービスを停止しようとするとエラーがスローされることを確認
       const mockRuntime = {
         getService: mock().mockReturnValue(null),
       } as unknown as IAgentRuntime;
@@ -97,6 +100,7 @@ describe("Error Handling", () => {
     });
 
     it("should handle service stop errors gracefully", async () => {
+      // サービスの停止エラーを適切に処理することを確認
       const mockServiceWithError = {
         stop: mock().mockImplementation(() => {
           throw new Error("Error stopping service");
@@ -107,7 +111,7 @@ describe("Error Handling", () => {
         getService: mock().mockReturnValue(mockServiceWithError),
       } as unknown as IAgentRuntime;
 
-      // The error should be propagated
+      // エラーは伝播されるべき
       let caughtError = null;
       try {
         await StarterService.stop(mockRuntime);
@@ -124,10 +128,11 @@ describe("Error Handling", () => {
 
   describe("Plugin Events Error Handling", () => {
     it("should handle errors in event handlers gracefully", async () => {
+      // イベントハンドラのエラーを適切に処理することを確認
       if (plugin.events && plugin.events.MESSAGE_RECEIVED) {
         const messageHandler = plugin.events.MESSAGE_RECEIVED[0];
 
-        // Create a mock that will trigger an error
+        // エラーをトリガーするモックを作成
         const mockParams = {
           message: {
             id: "test-id",
@@ -137,16 +142,16 @@ describe("Error Handling", () => {
           runtime: {},
         };
 
-        // Spy on the logger
+        // ロガーをスパイ
         spyOn(logger, "error");
 
-        // This is a partial test - in a real handler, we'd have more robust error handling
+        // これは部分的なテストです - 実際のハンドラでは、より堅牢なエラーハンドリングがあります
         try {
           await messageHandler(mockParams as any);
-          // If it succeeds without error, that's good too
+          // エラーなしで成功した場合もOK
           expect(true).toBe(true);
         } catch (error) {
-          // If it does error, make sure we can catch it
+          // エラーが発生した場合、それをキャッチできることを確認
           expect(error).toBeDefined();
         }
       }
@@ -155,26 +160,28 @@ describe("Error Handling", () => {
 
   describe("Provider Error Handling", () => {
     it("should handle errors in provider.get method", async () => {
+      // provider.getメソッドのエラーを処理することを確認
       const provider = plugin.providers?.find(
         (p) => p.name === "HELLO_WORLD_PROVIDER",
       );
 
       if (provider) {
-        // Create invalid inputs to test error handling
+        // エラーハンドリングをテストするために無効な入力を作成
         const mockRuntime = null as unknown as IAgentRuntime;
         const mockMessage = null as unknown as Memory;
         const mockState = null as unknown as State;
 
-        // The provider should handle null inputs gracefully
+        // プロバイダーはnull入力を適切に処理するべき
         try {
           await provider.get(mockRuntime, mockMessage, mockState);
-          // If we get here, it didn't throw - which is good
+          // ここに到達した場合、スローされなかった - それは良いこと
           expect(true).toBe(true);
         } catch (error) {
-          // If it does throw, at least make sure it's a handled error
+          // スローされた場合、少なくとも処理されたエラーであることを確認
           expect(logger.error).toHaveBeenCalled();
         }
       }
     });
   });
 });
+

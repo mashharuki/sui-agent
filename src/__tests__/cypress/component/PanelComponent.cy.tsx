@@ -2,11 +2,12 @@ import React from "react";
 import { panels } from "../../../frontend/index";
 
 describe("PanelComponent Tests", () => {
-  // Get the Panel component from the exported panels
+  // エクスポートされたパネルからPanelコンポーネントを取得
   const PanelComponent = panels[0]?.component;
 
   describe("Panel Registration", () => {
     it("should export panels array with correct structure", () => {
+      // 正しい構造でパネル配列をエクスポートすることを確認
       expect(panels).to.be.an("array");
       expect(panels).to.have.length.greaterThan(0);
 
@@ -22,6 +23,7 @@ describe("PanelComponent Tests", () => {
 
   describe("Component Rendering", () => {
     it("should render with agent ID", () => {
+      // エージェントIDでレンダリングされることを確認
       const testAgentId = "test-agent-12345";
 
       if (!PanelComponent) {
@@ -30,11 +32,12 @@ describe("PanelComponent Tests", () => {
 
       cy.mount(<PanelComponent agentId={testAgentId} />);
 
-      // Note: The component has a typo "Helllo" instead of "Hello"
+      // 注：コンポーネントには「Hello」の代わりに「Helllo」というタイポがあります
       cy.contains(`Helllo ${testAgentId}!`).should("be.visible");
     });
 
     it("should handle different agent IDs", () => {
+      // 異なるエージェントIDを処理できることを確認
       const agentIds = [
         "agent-1",
         "agent-2",
@@ -49,8 +52,10 @@ describe("PanelComponent Tests", () => {
     });
 
     it("should render without crashing with empty agent ID", () => {
+      // 空のエージェントIDでクラッシュせずにレンダリングされることを確認
       cy.mount(<PanelComponent agentId="" />);
       cy.contains("Helllo !").should("be.visible");
     });
   });
 });
+

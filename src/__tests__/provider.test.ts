@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュール、プラグイン、ElizaOSコア、dotenvなどをインポート
 import { describe, expect, it, spyOn, beforeAll, afterAll } from "bun:test";
 import plugin from "../plugin";
 import type { IAgentRuntime, Memory, State, Provider } from "@elizaos/core";
@@ -5,10 +6,10 @@ import { logger } from "@elizaos/core";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
 
-// Setup environment variables
+// 環境変数を設定
 dotenv.config();
 
-// Set up logging to capture issues
+// 問題をキャプチャするためにロギングを設定
 beforeAll(() => {
   spyOn(logger, "info");
   spyOn(logger, "error");
@@ -17,16 +18,16 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  // No global restore needed in bun:test;
+  // bun:testではグローバルなリストアは不要
 });
 
-// Helper function to document test results
+// テスト結果を文書化するヘルパー関数
 function documentTestResult(
   testName: string,
   result: any,
   error: Error | null = null,
 ) {
-  // Clean, useful test documentation for developers
+  // 開発者向けのクリーンで有用なテストドキュメンテーション
   logger.info(`✓ Testing: ${testName}`);
 
   if (error) {
@@ -46,7 +47,7 @@ function documentTestResult(
       }
     } else if (typeof result === "object") {
       try {
-        // Show key information in a clean format
+        // 主要な情報をクリーンなフォーマットで表示
         const keys = Object.keys(result);
         if (keys.length > 0) {
           const preview = keys.slice(0, 3).join(", ");
@@ -60,7 +61,7 @@ function documentTestResult(
   }
 }
 
-// Create a realistic runtime for testing
+// テスト用のリアルなランタイムを作成
 function createRealRuntime(): IAgentRuntime {
   return {
     character: {
@@ -87,7 +88,7 @@ function createRealRuntime(): IAgentRuntime {
     },
     memory: {
       add: async (memory: any) => {
-        // Memory operations for testing
+        // テスト用のメモリ操作
       },
       get: async (id: string) => {
         return null;
@@ -111,7 +112,7 @@ function createRealRuntime(): IAgentRuntime {
   } as unknown as IAgentRuntime;
 }
 
-// Create realistic memory object
+// リアルなメモリオブジェクトを作成
 function createRealMemory(): Memory {
   const entityId = uuidv4();
   const roomId = uuidv4();
@@ -135,13 +136,14 @@ function createRealMemory(): Memory {
 }
 
 describe("Provider Tests", () => {
-  // Find the HELLO_WORLD_PROVIDER from the providers array
+  // プロバイダー配列からHELLO_WORLD_PROVIDERを検索
   const helloWorldProvider = plugin.providers?.find(
     (provider) => provider.name === "HELLO_WORLD_PROVIDER",
   );
 
   describe("HELLO_WORLD_PROVIDER", () => {
     it("should exist in the plugin", () => {
+      // プロバイダーがプラグインに存在することを確認
       expect(plugin.providers).toBeDefined();
       expect(Array.isArray(plugin.providers)).toBe(true);
 
@@ -159,6 +161,7 @@ describe("Provider Tests", () => {
     });
 
     it("should have the correct structure", () => {
+      // プロバイダーが正しい構造を持っていることを確認
       if (helloWorldProvider) {
         expect(helloWorldProvider).toHaveProperty(
           "name",
@@ -177,6 +180,7 @@ describe("Provider Tests", () => {
     });
 
     it("should have a description explaining its purpose", () => {
+      // プロバイダーが目的を説明するdescriptionを持っていることを確認
       if (helloWorldProvider && helloWorldProvider.description) {
         expect(typeof helloWorldProvider.description).toBe("string");
         expect(helloWorldProvider.description.length).toBeGreaterThan(0);
@@ -188,6 +192,7 @@ describe("Provider Tests", () => {
     });
 
     it("should return provider data from the get method", async () => {
+      // getメソッドからプロバイダーデータが返されることを確認
       if (helloWorldProvider) {
         const runtime = createRealRuntime();
         const message = createRealMemory();
@@ -209,7 +214,7 @@ describe("Provider Tests", () => {
           expect(result).toHaveProperty("values");
           expect(result).toHaveProperty("data");
 
-          // Look for potential issues in the result
+          // 結果の潜在的な問題をチェック
           if (result && (!result.text || result.text.length === 0)) {
             logger.warn("Provider returned empty text");
           }
@@ -231,11 +236,12 @@ describe("Provider Tests", () => {
     });
 
     it("should handle error conditions gracefully", async () => {
+      // エラー条件を適切に処理することを確認
       if (helloWorldProvider) {
         const runtime = createRealRuntime();
-        // Create an invalid memory object to simulate an error scenario
+        // エラーシナリオをシミュレートするために無効なメモリオブジェクトを作成
         const invalidMemory = {
-          // Missing properties that would be required
+          // 必要なプロパティが欠けている
           id: uuidv4(),
         } as unknown as Memory;
 
@@ -252,10 +258,10 @@ describe("Provider Tests", () => {
           logger.info("Calling provider.get with invalid memory object");
           result = await helloWorldProvider.get(runtime, invalidMemory, state);
 
-          // Even with invalid input, it should not throw errors
+          // 無効な入力でもエラーをスローしないべき
           expect(result).toBeDefined();
 
-          // Log what actual implementation does with invalid input
+          // 実際の無効な入力での実装の動作をログに記録
           logger.info("Provider handled invalid input without throwing");
         } catch (e) {
           error = e as Error;
@@ -272,6 +278,7 @@ describe("Provider Tests", () => {
 
   describe("Provider Registration", () => {
     it("should include providers in the plugin definition", () => {
+      // プラグイン定義にプロバイダーが含まれていることを確認
       expect(plugin).toHaveProperty("providers");
       expect(Array.isArray(plugin.providers)).toBe(true);
 
@@ -282,14 +289,15 @@ describe("Provider Tests", () => {
     });
 
     it("should correctly initialize providers array", () => {
-      // Providers should be an array with at least one provider
+      // プロバイダー配列が正しく初期化されることを確認
+      // プロバイダーは少なくとも1つ含む配列であるべき
       if (plugin.providers) {
         expect(plugin.providers.length).toBeGreaterThan(0);
 
         let allValid = true;
         const invalidProviders: string[] = [];
 
-        // Each provider should have the required structure
+        // 各プロバイダーが必要な構造を持っていることを確認
         plugin.providers.forEach((provider: Provider) => {
           const isValid =
             provider.name !== undefined &&
@@ -316,6 +324,7 @@ describe("Provider Tests", () => {
     });
 
     it("should have unique provider names", () => {
+      // プロバイダー名が一意であることを確認
       if (plugin.providers) {
         const providerNames = plugin.providers.map((provider) => provider.name);
         const uniqueNames = new Set(providerNames);
@@ -324,7 +333,7 @@ describe("Provider Tests", () => {
           (name, index) => providerNames.indexOf(name) !== index,
         );
 
-        // There should be no duplicate provider names
+        // 重複するプロバイダー名はないはず
         expect(providerNames.length).toBe(uniqueNames.size);
 
         documentTestResult("Provider uniqueness check", {
@@ -336,3 +345,4 @@ describe("Provider Tests", () => {
     });
   });
 });
+

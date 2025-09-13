@@ -2,7 +2,7 @@ import React from "react";
 import "../../../frontend/index.css";
 
 /**
- * Example accessible form component
+ * アクセシブルなフォームコンポーネントの例
  */
 const AccessibleForm: React.FC<{ onSubmit: (data: any) => void }> = ({
   onSubmit,
@@ -116,12 +116,12 @@ describe("Accessibility Tests", () => {
     it("should have proper labels for all form fields", () => {
       cy.mount(<AccessibleForm onSubmit={cy.stub()} />);
 
-      // Check that labels are properly associated
+      // ラベルが正しく関連付けられていることを確認
       cy.get('label[for="name"]').should("exist");
       cy.get('label[for="email"]').should("exist");
       cy.get('label[for="message"]').should("exist");
 
-      // Check that inputs have matching IDs
+      // 入力に一致するIDがあることを確認
       cy.get("input#name").should("exist");
       cy.get("input#email").should("exist");
       cy.get("textarea#message").should("exist");
@@ -130,7 +130,7 @@ describe("Accessibility Tests", () => {
     it("should indicate required fields", () => {
       cy.mount(<AccessibleForm onSubmit={cy.stub()} />);
 
-      // Check for required field indicators
+      // 必須フィールドインジケータを確認
       cy.get('label[for="name"]').within(() => {
         cy.get('[aria-label="required"]').should("exist");
       });
@@ -142,18 +142,18 @@ describe("Accessibility Tests", () => {
     it("should show accessible error messages", () => {
       cy.mount(<AccessibleForm onSubmit={cy.stub()} />);
 
-      // Submit empty form
+      // 空のフォームを送信
       cy.get('button[type="submit"]').click();
 
-      // Check error messages have proper ARIA attributes
+      // エラーメッセージに適切なARIA属性があることを確認
       cy.get("#name-error").should("have.attr", "role", "alert");
       cy.get("#email-error").should("have.attr", "role", "alert");
 
-      // Check inputs are marked as invalid
+      // 入力が無効としてマークされていることを確認
       cy.get("input#name").should("have.attr", "aria-invalid", "true");
       cy.get("input#email").should("have.attr", "aria-invalid", "true");
 
-      // Check aria-describedby links errors to inputs
+      // aria-describedbyがエラーを入力にリンクしていることを確認
       cy.get("input#name").should(
         "have.attr",
         "aria-describedby",
@@ -169,7 +169,7 @@ describe("Accessibility Tests", () => {
     it("should be keyboard navigable", () => {
       cy.mount(<AccessibleForm onSubmit={cy.stub()} />);
 
-      // Verify all form elements can receive focus
+      // すべてのフォーム要素がフォーカスを受け取れることを確認
       cy.get("input#name").focus();
       cy.focused().should("have.attr", "id", "name");
 
@@ -182,7 +182,7 @@ describe("Accessibility Tests", () => {
       cy.get('button[type="submit"]').focus();
       cy.focused().should("contain", "Send Message");
 
-      // Verify tabindex is not preventing keyboard access
+      // tabindexがキーボードアクセスを妨げていないことを確認
       cy.get("input, textarea, button").should(
         "not.have.attr",
         "tabindex",
@@ -193,7 +193,7 @@ describe("Accessibility Tests", () => {
     it("should have proper focus indicators", () => {
       cy.mount(<AccessibleForm onSubmit={cy.stub()} />);
 
-      // Check focus ring on button
+      // ボタンのフォーカスリングを確認
       cy.get('button[type="submit"]').focus();
       cy.get('button[type="submit"]').should("have.class", "focus:ring-2");
     });
@@ -211,7 +211,7 @@ describe("Accessibility Tests", () => {
         </div>,
       );
 
-      // Visual check - in real tests you might use cypress-axe
+      // 視覚的チェック - 実際のテストではcypress-axeを使用することがあります
       cy.get("h1").should("have.class", "text-white");
       cy.get("p").should("have.class", "text-gray-300");
     });
@@ -231,7 +231,7 @@ describe("Accessibility Tests", () => {
         </article>,
       );
 
-      // Check heading hierarchy
+      // 見出し階層を確認
       cy.get("h1").should("have.length", 1);
       cy.get("h2").should("exist");
       cy.get("h3").should("exist");
@@ -259,35 +259,36 @@ describe("Accessibility Tests", () => {
 });
 
 /**
- * ACCESSIBILITY TESTING PATTERNS
+ * アクセシビリティテストのパターン
  *
- * 1. ARIA ATTRIBUTES
- *    - Test aria-label, aria-describedby, aria-invalid
- *    - Verify role attributes for dynamic content
- *    - Check live regions for updates
+ * 1. ARIA属性
+ *    - aria-label, aria-describedby, aria-invalidをテスト
+ *    - 動的コンテンツのrole属性を検証
+ *    - ライブリージョンの更新をチェック
  *
- * 2. KEYBOARD NAVIGATION
- *    - Test tab order
- *    - Verify all interactive elements are reachable
- *    - Check focus indicators
+ * 2. キーボードナビゲーション
+ *    - タブオーダーをテスト
+ *    - すべてのインタラクティブ要素が到達可能であることを確認
+ *    - フォーカスインジケータをチェック
  *
- * 3. FORM ACCESSIBILITY
- *    - Labels properly associated with inputs
- *    - Error messages linked to fields
- *    - Required fields indicated
+ * 3. フォームのアクセシビリティ
+ *    - ラベルが入力に正しく関連付けられている
+ *    - エラーメッセージがフィールドにリンクされている
+ *    - 必須フィールドが示されている
  *
- * 4. COLOR CONTRAST
- *    - Test in both light and dark modes
- *    - Ensure text is readable
- *    - Check focus indicators visibility
+ * 4. カラーコントラスト
+ *    - ライトモードとダークモードの両方でテスト
+ *    - テキストが読みやすいことを確認
+ *    - フォーカスインジケータの可視性をチェック
  *
- * 5. SCREEN READER SUPPORT
- *    - Proper heading hierarchy
- *    - Semantic HTML usage
- *    - Alternative text for images
+ * 5. スクリーンリーダーのサポート
+ *    - 適切な見出し階層
+ *    - セマンティックHTMLの使用
+ *    - 画像の代替テキスト
  *
- * TOOLS TO CONSIDER:
- * - cypress-axe: Automated accessibility testing
- * - cypress-tab: Better keyboard navigation testing
- * - cypress-real-events: Test with real browser events
+ * 考慮すべきツール：
+ * - cypress-axe：自動アクセシビリティテスト
+ * - cypress-tab：より良いキーボードナビゲーションテスト
+ * - cypress-real-events：実際のブラウザイベントでテスト
  */
+

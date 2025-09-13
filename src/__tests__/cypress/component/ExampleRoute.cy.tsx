@@ -2,8 +2,8 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "../../../frontend/index.css";
 
-// We need to import the component directly since it's not exported
-// In a real scenario, you'd export the component from index.tsx
+// コンポーネントがエクスポートされていないため、直接インポートする必要があります
+// 実際のシナリオでは、index.tsxからコンポーネントをエクスポートします
 const ExampleRoute = () => {
   const [config, setConfig] = React.useState(window.ELIZA_CONFIG);
 
@@ -39,14 +39,14 @@ describe("ExampleRoute Component Tests", () => {
     });
 
     it("should show error when agent ID is missing", () => {
-      // Clear the config before mounting
+      // マウントする前に設定をクリア
       cy.window().then((win) => {
         win.ELIZA_CONFIG = undefined;
       });
 
       cy.mount(<ExampleRoute />);
 
-      // Check error message is displayed
+      // エラーメッセージが表示されることを確認
       cy.contains("Error: Agent ID not found").should("be.visible");
       cy.contains(
         "The server should inject the agent ID configuration.",
@@ -56,7 +56,7 @@ describe("ExampleRoute Component Tests", () => {
     it("should render correctly with agent ID", () => {
       const testAgentId = "12345678-1234-1234-1234-123456789abc";
 
-      // Set config before mounting
+      // マウントする前に設定
       cy.window().then((win) => {
         win.ELIZA_CONFIG = {
           agentId: testAgentId,
@@ -66,7 +66,7 @@ describe("ExampleRoute Component Tests", () => {
 
       cy.mount(<ExampleRoute />);
 
-      // Check that the agent ID is displayed
+      // エージェントIDが表示されることを確認
       cy.contains(`Hello ${testAgentId}`).should("be.visible");
     });
   });
@@ -76,7 +76,7 @@ describe("ExampleRoute Component Tests", () => {
       const initialAgentId = "initial-agent-id";
       const updatedAgentId = "updated-agent-id";
 
-      // Set initial config
+      // 初期設定
       cy.window().then((win) => {
         win.ELIZA_CONFIG = {
           agentId: initialAgentId,
@@ -91,44 +91,44 @@ describe("ExampleRoute Component Tests", () => {
 });
 
 /**
- * TESTING PATTERNS FOR FRONTEND COMPONENTS IN ELIZAOS
+ * ELIZAOSにおけるフロントエンドコンポーネントのテストパターン
  *
- * 1. COMPONENT ISOLATION
- *    - Test components in isolation using cy.mount()
- *    - Mock external dependencies (like API calls)
- *    - Use data-testid attributes for reliable element selection
+ * 1. コンポーネントの分離
+ *    - cy.mount()を使用してコンポーネントを分離してテスト
+ *    - 外部依存関係（API呼び出しなど）をモック
+ *    - 信頼性の高い要素選択のためにdata-testid属性を使用
  *
- * 2. CONFIGURATION TESTING
- *    - Always test with and without ELIZA_CONFIG
- *    - Test with invalid/malformed configurations
- *    - Verify error states and fallbacks
+ * 2. 設定のテスト
+ *    - ELIZA_CONFIGの有無で常にテスト
+ *    - 無効/不正な設定でテスト
+ *    - エラー状態とフォールバックを検証
  *
- * 3. DARK MODE SUPPORT
- *    - Ensure components work in both light and dark modes
- *    - Use the custom shouldBeDarkMode() command
+ * 3. ダークモードのサポート
+ *    - コンポーネントがライトモードとダークモードの両方で動作することを確認
+ *    - カスタムのshouldBeDarkMode()コマンドを使用
  *
- * 4. QUERY CLIENT TESTING
- *    - Mock API responses for react-query
- *    - Test loading, error, and success states
- *    - Verify cache behavior
+ * 4. クエリクライアントのテスト
+ *    - react-queryのAPIレスポンスをモック
+ *    - ローディング、エラー、成功の状態をテスト
+ *    - キャッシュの動作を検証
  *
- * 5. ACCESSIBILITY
- *    - Use Testing Library queries (findByRole, findByText)
- *    - Test keyboard navigation
- *    - Verify ARIA attributes
+ * 5. アクセシビリティ
+ *    - Testing Libraryのクエリ（findByRole, findByText）を使用
+ *    - キーボードナビゲーションをテスト
+ *    - ARIA属性を検証
  *
- * EXAMPLE TEST STRUCTURE:
+ * テスト構造の例：
  *
  * describe('Component Name', () => {
  *   beforeEach(() => {
- *     // Set up common test data
+ *     //共通のテストデータを設定
  *     cy.setElizaConfig({ agentId: 'test-id', apiBase: 'http://localhost:3000' });
  *   });
  *
  *   describe('Rendering', () => {
  *     it('should render correctly', () => {
  *       cy.mount(<Component />);
- *       // Assertions
+ *       // アサーション
  *     });
  *   });
  *
@@ -136,7 +136,7 @@ describe("ExampleRoute Component Tests", () => {
  *     it('should handle click events', () => {
  *       cy.mount(<Component />);
  *       cy.findByRole('button').click();
- *       // Assertions
+ *       // アサーション
  *     });
  *   });
  *
@@ -144,7 +144,8 @@ describe("ExampleRoute Component Tests", () => {
  *     it('should fetch and display data', () => {
  *       cy.intercept('GET', '/api/data', { fixture: 'mockData.json' });
  *       cy.mount(<Component />);
- *       // Assertions
+ *       // アサーション
  *     });
  *   });
  * }); */
+

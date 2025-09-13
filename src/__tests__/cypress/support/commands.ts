@@ -1,15 +1,15 @@
 // ***********************************************
-// This file is where you can create custom Cypress commands
-// and overwrite existing commands.
+// このファイルでは、カスタムのCypressコマンドを作成したり、
+// 既存のコマンドを上書きしたりできます。
 //
-// For comprehensive examples, visit:
+// 包括的な例については、以下をご覧ください：
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-// Example custom command
+// カスタムコマンドの例
 // Cypress.Commands.add('login', (email, password) => { ... })
 
-// Extend Window interface
+// Windowインターフェースを拡張
 declare global {
   interface Window {
     ELIZA_CONFIG?: {
@@ -19,19 +19,19 @@ declare global {
   }
 }
 
-// Custom command to check if element is in dark mode
+// 要素がダークモードであるかを確認するカスタムコマンド
 Cypress.Commands.add("shouldBeDarkMode", () => {
   cy.get("html").should("have.class", "dark");
 });
 
-// Custom command to set ELIZA_CONFIG
+// ELIZA_CONFIGを設定するカスタムコマンド
 Cypress.Commands.add("setElizaConfig", (config) => {
   cy.window().then((win) => {
     win.ELIZA_CONFIG = config;
   });
 });
 
-// TypeScript definitions
+// TypeScriptの定義
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -45,3 +45,4 @@ declare global {
 }
 
 export {};
+

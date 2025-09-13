@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュール、ElizaOSコア、およびUUID生成ライブラリをインポート
 import { mock } from "bun:test";
 import {
   composeActionExamples,
@@ -15,15 +16,15 @@ import { logger } from "@elizaos/core";
 import { v4 as uuidv4 } from "uuid";
 
 /**
- * Utility functions for reusing core package tests in project-starter tests
+ * project-starterテストでコアパッケージのテストを再利用するためのユーティリティ関数
  */
 
 /**
- * Runs core package action tests against the provided actions
- * @param actions The actions to test
+ * 提供されたアクションに対してコアパッケージのアクションテストを実行します
+ * @param actions テストするアクション
  */
 export const runCoreActionTests = (actions: Action[]) => {
-  // Validate action structure (similar to core tests)
+  // アクション構造を検証（コアテストと同様）
   for (const action of actions) {
     if (!action.name) {
       throw new Error("Action missing name property");
@@ -45,7 +46,7 @@ export const runCoreActionTests = (actions: Action[]) => {
     }
   }
 
-  // Validate example structure
+  // 例の構造を検証
   for (const action of actions) {
     for (const example of action.examples ?? []) {
       for (const message of example) {
@@ -68,14 +69,14 @@ export const runCoreActionTests = (actions: Action[]) => {
     }
   }
 
-  // Validate uniqueness of action names
+  // アクション名の一意性を検証
   const names = actions.map((action) => action.name);
   const uniqueNames = new Set(names);
   if (names.length !== uniqueNames.size) {
     throw new Error("Duplicate action names found");
   }
 
-  // Test action formatting
+  // アクションのフォーマットをテスト
   const formattedNames = formatActionNames(actions);
   if (!formattedNames && actions.length > 0) {
     throw new Error("formatActionNames failed to produce output");
@@ -99,7 +100,7 @@ export const runCoreActionTests = (actions: Action[]) => {
 };
 
 /**
- * Creates a mock runtime for testing
+ * テスト用のモックランタイムを作成します
  */
 export const createMockRuntime = (): IAgentRuntime => {
   return {
@@ -108,16 +109,16 @@ export const createMockRuntime = (): IAgentRuntime => {
       system: "You are a helpful assistant for testing.",
     },
     getSetting: (key: string) => null,
-    // Include real model functionality
+    // リアルなモデル機能を含む
     models: {},
-    // Add real database functionality
+    // リアルなデータベース機能を追加
     db: {
       get: async () => null,
       set: async () => true,
       delete: async () => true,
       getKeys: async () => [],
     },
-    // Add real memory functionality
+    // リアルなメモリ機能を追加
     memory: {
       add: async () => {},
       get: async () => null,
@@ -134,14 +135,14 @@ export const createMockRuntime = (): IAgentRuntime => {
 };
 
 /**
- * Documents test results for logging and debugging
+ * ロギングとデバッグのためにテスト結果を文書化します
  */
 export const documentTestResult = (
   testName: string,
   result: any,
   error: Error | null = null,
 ) => {
-  // Clean, useful test documentation for developers
+  // 開発者向けのクリーンで有用なテストドキュメンテーション
   logger.info(`✓ Testing: ${testName}`);
 
   if (error) {
@@ -161,7 +162,7 @@ export const documentTestResult = (
       }
     } else if (typeof result === "object") {
       try {
-        // Show key information in a clean format
+        // 主要な情報をクリーンなフォーマットで表示
         const keys = Object.keys(result);
         if (keys.length > 0) {
           const preview = keys.slice(0, 3).join(", ");
@@ -176,7 +177,7 @@ export const documentTestResult = (
 };
 
 /**
- * Creates a mock message for testing
+ * テスト用のモックメッセージを作成します
  */
 export const createMockMessage = (text: string): Memory => {
   return {
@@ -190,7 +191,7 @@ export const createMockMessage = (text: string): Memory => {
 };
 
 /**
- * Creates a mock state for testing
+ * テスト用のモック状態を作成します
  */
 export const createMockState = (): State => {
   return {

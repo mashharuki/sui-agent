@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュール、プラグイン、ElizaOSコア、サービス、およびdotenvをインポート
 import {
   describe,
   expect,
@@ -13,10 +14,10 @@ import { ModelType, logger } from "@elizaos/core";
 import { StarterService } from "../plugin";
 import dotenv from "dotenv";
 
-// Setup environment variables
+// 環境変数を設定
 dotenv.config();
 
-// Need to spy on logger for documentation
+// ドキュメンテーションのためにロガーをスパイする必要がある
 beforeAll(() => {
   spyOn(logger, "info");
   spyOn(logger, "error");
@@ -25,16 +26,16 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  // No global restore needed in bun:test;
+  // bun:testではグローバルなリストアは不要
 });
 
-// Helper function to document test results
+// テスト結果を文書化するヘルパー関数
 function documentTestResult(
   testName: string,
   result: any,
   error: Error | null = null,
 ) {
-  // Clean, useful test documentation for developers
+  // 開発者向けのクリーンで有用なテストドキュメンテーション
   logger.info(`✓ Testing: ${testName}`);
 
   if (error) {
@@ -54,7 +55,7 @@ function documentTestResult(
       }
     } else if (typeof result === "object") {
       try {
-        // Show key information in a clean format
+        // 主要な情報をクリーンなフォーマットで表示
         const keys = Object.keys(result);
         if (keys.length > 0) {
           const preview = keys.slice(0, 3).join(", ");
@@ -68,11 +69,11 @@ function documentTestResult(
   }
 }
 
-// Create a real runtime for testing
+// テスト用のリアルなランタイムを作成
 function createRealRuntime() {
   const services = new Map();
 
-  // Create a real service instance if needed
+  // 必要に応じてリアルなサービスインスタンスを作成
   const createService = (serviceType: string) => {
     if (serviceType === StarterService.serviceType) {
       return new StarterService({
@@ -101,7 +102,7 @@ function createRealRuntime() {
       getKeys: async (pattern: string) => [],
     },
     getService: (serviceType: string) => {
-      // Get from cache
+      // キャッシュから取得
       return services.get(serviceType);
     },
     registerService: (serviceType: string, service: any) => {
@@ -112,6 +113,7 @@ function createRealRuntime() {
 
 describe("Plugin Configuration", () => {
   it("should have correct plugin metadata", () => {
+    // プラグインのメタデータが正しいことを確認
     expect(plugin.name).toBe("starter");
     expect(plugin.description).toBe("A starter plugin for Eliza");
     expect(plugin.config).toBeDefined();
@@ -124,6 +126,7 @@ describe("Plugin Configuration", () => {
   });
 
   it("should include the EXAMPLE_PLUGIN_VARIABLE in config", () => {
+    // 設定にEXAMPLE_PLUGIN_VARIABLEが含まれていることを確認
     expect(plugin.config).toHaveProperty("EXAMPLE_PLUGIN_VARIABLE");
 
     documentTestResult("Plugin config check", {
@@ -135,12 +138,13 @@ describe("Plugin Configuration", () => {
   });
 
   it("should initialize properly", async () => {
+    // 適切に初期化されることを確認
     const originalEnv = process.env.EXAMPLE_PLUGIN_VARIABLE;
 
     try {
       process.env.EXAMPLE_PLUGIN_VARIABLE = "test-value";
 
-      // Initialize with config - using real runtime
+      // 設定で初期化 - リアルなランタイムを使用
       const runtime = createRealRuntime();
 
       let error: Error | null = null;
@@ -149,7 +153,7 @@ describe("Plugin Configuration", () => {
           { EXAMPLE_PLUGIN_VARIABLE: "test-value" },
           runtime as any,
         );
-        expect(true).toBe(true); // If we got here, init succeeded
+        expect(true).toBe(true); // ここに到達した場合、initは成功
       } catch (e) {
         error = e as Error;
         logger.error({ error: e }, "Plugin initialization error:");
@@ -169,18 +173,19 @@ describe("Plugin Configuration", () => {
   });
 
   it("should throw an error on invalid config", async () => {
-    // Test with empty string (less than min length 1)
+    // 無効な設定でエラーをスローすることを確認
+    // 空文字列でテスト（最小長1未満）
     if (plugin.init) {
       const runtime = createRealRuntime();
       let error: Error | null = null;
 
       try {
         await plugin.init({ EXAMPLE_PLUGIN_VARIABLE: "" }, runtime as any);
-        // Should not reach here
+        // ここには到達しないはず
         expect(true).toBe(false);
       } catch (e) {
         error = e as Error;
-        // This is expected - test passes
+        // これは期待される動作 - テストは成功
         expect(error).toBeTruthy();
       }
 
@@ -196,9 +201,10 @@ describe("Plugin Configuration", () => {
   });
 
   it("should have a valid config", () => {
+    // 有効な設定を持っていることを確認
     expect(plugin.config).toBeDefined();
     if (plugin.config) {
-      // Check if the config has expected EXAMPLE_PLUGIN_VARIABLE property
+      // 設定に期待されるEXAMPLE_PLUGIN_VARIABLEプロパティがあるか確認
       expect(Object.keys(plugin.config)).toContain("EXAMPLE_PLUGIN_VARIABLE");
     }
   });
@@ -206,6 +212,7 @@ describe("Plugin Configuration", () => {
 
 describe("Plugin Models", () => {
   it("should have TEXT_SMALL model defined", () => {
+    // TEXT_SMALLモデルが定義されていることを確認
     if (plugin.models) {
       expect(plugin.models).toHaveProperty(ModelType.TEXT_SMALL);
       expect(typeof plugin.models[ModelType.TEXT_SMALL]).toBe("function");
@@ -218,6 +225,7 @@ describe("Plugin Models", () => {
   });
 
   it("should have TEXT_LARGE model defined", () => {
+    // TEXT_LARGEモデルが定義されていることを確認
     if (plugin.models) {
       expect(plugin.models).toHaveProperty(ModelType.TEXT_LARGE);
       expect(typeof plugin.models[ModelType.TEXT_LARGE]).toBe("function");
@@ -230,6 +238,7 @@ describe("Plugin Models", () => {
   });
 
   it("should return a response from TEXT_SMALL model", async () => {
+    // TEXT_SMALLモデルから応答が返されることを確認
     if (plugin.models && plugin.models[ModelType.TEXT_SMALL]) {
       const runtime = createRealRuntime();
 
@@ -242,7 +251,7 @@ describe("Plugin Models", () => {
           prompt: "test",
         });
 
-        // Check that we get a non-empty string response
+        // 空でない文字列の応答が得られることを確認
         expect(result).toBeTruthy();
         expect(typeof result).toBe("string");
         expect(result.length).toBeGreaterThan(10);
@@ -270,6 +279,7 @@ describe("StarterService", () => {
   });
 
   it("should start the service", async () => {
+    // サービスが開始されることを確認
     let startResult;
     let error: Error | null = null;
 
@@ -280,7 +290,7 @@ describe("StarterService", () => {
       expect(startResult).toBeDefined();
       expect(startResult.constructor.name).toBe("StarterService");
 
-      // Test real functionality - check stop method is available
+      // リアルな機能性をテスト - stopメソッドが利用可能か確認
       expect(typeof startResult.stop).toBe("function");
     } catch (e) {
       error = e as Error;
@@ -298,7 +308,8 @@ describe("StarterService", () => {
   });
 
   it("should throw an error on startup if the service is already registered", async () => {
-    // First registration should succeed
+    // サービスが既に登録されている場合に起動時にエラーをスローすることを確認
+    // 最初の登録は成功するはず
     const result1 = await StarterService.start(runtime as any);
     runtime.registerService(StarterService.serviceType, result1);
     expect(result1).toBeTruthy();
@@ -306,9 +317,9 @@ describe("StarterService", () => {
     let startupError: Error | null = null;
 
     try {
-      // Second registration should fail
+      // 2回目の登録は失敗するはず
       await StarterService.start(runtime as any);
-      expect(true).toBe(false); // Should not reach here
+      expect(true).toBe(false); // ここには到達しないはず
     } catch (e) {
       startupError = e as Error;
       expect(e).toBeTruthy();
@@ -325,20 +336,21 @@ describe("StarterService", () => {
   });
 
   it("should stop the service", async () => {
+    // サービスが停止されることを確認
     let error: Error | null = null;
 
     try {
-      // Register a real service first
+      // 最初にリアルなサービスを登録
       const service = new StarterService(runtime as any);
       runtime.registerService(StarterService.serviceType, service);
 
-      // Spy on the real service's stop method
+      // リアルなサービスのstopメソッドをスパイ
       const stopSpy = spyOn(service, "stop");
 
-      // Call the static stop method
+      // 静的なstopメソッドを呼び出し
       await StarterService.stop(runtime as any);
 
-      // Verify the service's stop method was called
+      // サービスのstopメソッドが呼び出されたことを確認
       expect(stopSpy).toHaveBeenCalled();
     } catch (e) {
       error = e as Error;
@@ -355,20 +367,21 @@ describe("StarterService", () => {
   });
 
   it("should throw an error when stopping a non-existent service", async () => {
-    // Don't register a service, so getService will return null
+    // 存在しないサービスを停止しようとするとエラーをスローすることを確認
+    // サービスを登録しないので、getServiceはnullを返す
 
     let error: Error | null = null;
 
     try {
-      // We'll patch the getService function to ensure it returns null
+      // getService関数をパッチして、nullを返すようにする
       runtime.getService = () => null;
 
       await StarterService.stop(runtime as any);
-      // Should not reach here
+      // ここには到達しないはず
       expect(true).toBe(false);
     } catch (e) {
       error = e as Error;
-      // This is expected - verify it's the right error
+      // これは期待される動作 - 正しいエラーであることを確認
       expect(error).toBeTruthy();
       if (error instanceof Error) {
         expect(error.message).toContain("Starter service not found");
@@ -386,7 +399,8 @@ describe("StarterService", () => {
   });
 
   it("should stop a registered service", async () => {
-    // First start the service
+    // 登録されたサービスを停止することを確認
+    // 最初にサービスを開始
     const startResult = await StarterService.start(runtime as any);
     runtime.registerService(StarterService.serviceType, startResult);
     expect(startResult).toBeTruthy();
@@ -395,12 +409,12 @@ describe("StarterService", () => {
     let stopSuccess = false;
 
     try {
-      // Then stop it
+      // 次に停止
       await StarterService.stop(runtime as any);
       stopSuccess = true;
     } catch (e) {
       stopError = e;
-      expect(true).toBe(false); // Should not reach here
+      expect(true).toBe(false); // ここには到達しないはず
     }
 
     documentTestResult(

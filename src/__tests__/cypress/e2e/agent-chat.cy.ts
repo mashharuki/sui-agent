@@ -1,16 +1,15 @@
 /**
- * E2E Tests for Agent Chat Functionality
+ * エージェントチャット機能のE2Eテスト
  *
- * These tests verify the chat interface and agent interactions
- * in the running application.
+ * これらのテストは、実行中のアプリケーションでのチャットインターフェースとエージェントの相互作用を検証します。
  */
 
 describe("Agent Chat E2E Tests", () => {
   beforeEach(() => {
-    // Visit the dashboard
+    // ダッシュボードにアクセス
     cy.visit("/");
 
-    // Navigate to chat or agents section
+    // チャットまたはエージェントセクションに移動
     cy.get(
       'a[href*="chat"], a[href*="agent"], button:contains("chat"), button:contains("agent")',
       {
@@ -23,14 +22,14 @@ describe("Agent Chat E2E Tests", () => {
 
   describe("Chat Interface", () => {
     it("should display the chat interface", () => {
-      // Look for chat-related elements
+      // チャット関連の要素を探す
       cy.get(
         '[data-testid="chat-container"], .chat-container, #chat, [role="main"]',
       ).should("be.visible");
     });
 
     it("should have a message input field", () => {
-      // Look for input field
+      // 入力フィールドを探す
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
@@ -39,7 +38,7 @@ describe("Agent Chat E2E Tests", () => {
     });
 
     it("should have a send button", () => {
-      // Look for send button
+      // 送信ボタンを探す
       cy.get("button")
         .filter(':contains("Send"), :contains("send"), [aria-label*="send"]')
         .should("be.visible")
@@ -51,45 +50,45 @@ describe("Agent Chat E2E Tests", () => {
     it("should send a message when typing and clicking send", () => {
       const testMessage = "Hello, this is a test message";
 
-      // Type message
+      // メッセージを入力
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type(testMessage);
 
-      // Click send
+      // 送信をクリック
       cy.get("button")
         .filter(':contains("Send"), :contains("send"), [aria-label*="send"]')
         .first()
         .click();
 
-      // Verify message appears in chat
+      // メッセージがチャットに表示されることを確認
       cy.contains(testMessage, { timeout: 10000 }).should("be.visible");
     });
 
     it("should send a message when pressing Enter", () => {
       const testMessage = "Test message with Enter key";
 
-      // Type message and press Enter
+      // メッセージを入力してEnterキーを押す
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type(`${testMessage}{enter}`);
 
-      // Verify message appears
+      // メッセージが表示されることを確認
       cy.contains(testMessage, { timeout: 10000 }).should("be.visible");
     });
 
     it("should clear input after sending", () => {
       const testMessage = "Message to clear";
 
-      // Get input element
+      // 入力要素を取得
       const input = cy
         .get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first();
 
-      // Type and send
+      // 入力して送信
       input.type(testMessage);
 
       cy.get("button")
@@ -97,34 +96,34 @@ describe("Agent Chat E2E Tests", () => {
         .first()
         .click();
 
-      // Verify input is cleared
+      // 入力がクリアされることを確認
       input.should("have.value", "");
     });
   });
 
   describe("Agent Responses", () => {
     it("should receive a response from the agent", () => {
-      // Send a simple message
+      // 簡単なメッセージを送信
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type("Hello agent{enter}");
 
-      // Wait for agent response
-      // Look for typical agent response indicators
+      // エージェントの応答を待つ
+      // 一般的なエージェント応答インジケータを探す
       cy.get('[data-testid*="agent"], [class*="agent"], [role="article"]', {
         timeout: 15000,
       }).should("have.length.greaterThan", 0);
     });
 
     it("should show typing indicator while agent is responding", () => {
-      // Send message
+      // メッセージを送信
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type("Tell me about yourself{enter}");
 
-      // Look for typing indicator
+      // タイピングインジケータを探す
       cy.get(
         '[data-testid="typing"], [class*="typing"], [aria-label*="typing"]',
         {
@@ -132,7 +131,7 @@ describe("Agent Chat E2E Tests", () => {
         },
       ).should("be.visible");
 
-      // Typing indicator should disappear after response
+      // 応答後にタイピングインジケータが消えるべき
       cy.get(
         '[data-testid="typing"], [class*="typing"], [aria-label*="typing"]',
         {
@@ -146,25 +145,25 @@ describe("Agent Chat E2E Tests", () => {
     it("should maintain chat history", () => {
       const messages = ["First message", "Second message", "Third message"];
 
-      // Send multiple messages
+      // 複数のメッセージを送信
       messages.forEach((msg, index) => {
         cy.get('input[type="text"], textarea, [contenteditable="true"]')
           .filter(":visible")
           .first()
           .type(`${msg}{enter}`);
 
-        // Wait a bit between messages
+        // メッセージ間に少し待機
         cy.wait(1000);
       });
 
-      // Verify all messages are visible
+      // すべてのメッセージが表示されていることを確認
       messages.forEach((msg) => {
         cy.contains(msg).should("be.visible");
       });
     });
 
     it("should scroll to latest message", () => {
-      // Send multiple messages to create scroll
+      // スクロールを作成するために複数のメッセージを送信
       for (let i = 0; i < 10; i++) {
         cy.get('input[type="text"], textarea, [contenteditable="true"]')
           .filter(":visible")
@@ -173,39 +172,39 @@ describe("Agent Chat E2E Tests", () => {
         cy.wait(500);
       }
 
-      // Check that the latest message is in view
+      // 最新のメッセージが表示されていることを確認
       cy.contains("Message number 9").should("be.visible");
     });
   });
 
   describe("Error Handling", () => {
     it("should handle network errors gracefully", () => {
-      // Intercept API calls and force error
+      // API呼び出しをインターセプトしてエラーを強制
       cy.intercept("POST", "**/api/chat/**", {
         statusCode: 500,
         body: { error: "Server error" },
       }).as("chatError");
 
-      // Send message
+      // メッセージを送信
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type("This will fail{enter}");
 
-      // Should show error message
+      // エラーメッセージが表示されるべき
       cy.contains(/error|failed|try again/i, { timeout: 10000 }).should(
         "be.visible",
       );
     });
 
     it("should prevent sending empty messages", () => {
-      // Try to send empty message
+      // 空のメッセージを送信しようとする
       cy.get("button")
         .filter(':contains("Send"), :contains("send"), [aria-label*="send"]')
         .first()
         .click();
 
-      // Should not create any new message elements
+      // 新しいメッセージ要素が作成されないべき
       cy.get('[data-testid*="message"], [class*="message"]').should(
         "have.length",
         0,
@@ -215,35 +214,36 @@ describe("Agent Chat E2E Tests", () => {
 });
 
 /**
- * CHAT TESTING PATTERNS
+ * チャットテストのパターン
  *
- * 1. MESSAGE FLOW
- *    - Test sending messages
- *    - Verify message display
- *    - Check input clearing
- *    - Test keyboard shortcuts
+ * 1. メッセージフロー
+ *    - メッセージの送信をテスト
+ *    - メッセージ表示を検証
+ *    - 入力クリアをチェック
+ *    - キーボードショートカットをテスト
  *
- * 2. AGENT INTERACTION
- *    - Wait for responses
- *    - Check typing indicators
- *    - Verify response format
- *    - Test conversation context
+ * 2. エージェントとの対話
+ *    - 応答を待つ
+ *    - タイピングインジケータをチェック
+ *    - 応答形式を検証
+ *    - 会話コンテキストをテスト
  *
- * 3. UI BEHAVIOR
- *    - Auto-scroll to latest
- *    - Maintain history
- *    - Handle long messages
- *    - Responsive layout
+ * 3. UIの動作
+ *    - 最新への自動スクロール
+ *    - 履歴の維持
+ *    - 長いメッセージの処理
+ *    - レスポンシブレイアウト
  *
- * 4. ERROR CASES
- *    - Network failures
- *    - Empty messages
- *    - Rate limiting
- *    - Session timeouts
+ * 4. エラーケース
+ *    - ネットワーク障害
+ *    - 空のメッセージ
+ *    - レート制限
+ *    - セッションタイムアウト
  *
- * TIPS:
- * - Use generous timeouts for agent responses
- * - Test real-world scenarios
- * - Verify accessibility features
- * - Check mobile interactions
+ * ヒント：
+ * - エージェントの応答には寛大なタイムアウトを使用する
+ * - 現実世界のシナリオをテストする
+ * - アクセシビリティ機能を検証する
+ * - モバイルでのインタラクションをチェックする
  */
+

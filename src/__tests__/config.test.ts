@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュール、プラグイン、zod、およびテストユーティリティをインポート
 import {
   describe,
   expect,
@@ -12,28 +13,29 @@ import { z } from "zod";
 import { createMockRuntime } from "./utils/core-test-utils";
 import { logger } from "@elizaos/core";
 
-// Access the plugin's init function
+// プラグインのinit関数にアクセス
 const initPlugin = plugin.init;
 
 describe("Plugin Configuration Schema", () => {
-  // Create a backup of the original env values
+  // 元の環境変数のバックアップを作成
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
-    // Use spyOn for logger methods
+    // loggerメソッドにspyOnを使用
     spyOn(logger, "info");
     spyOn(logger, "error");
     spyOn(logger, "warn");
-    // Reset environment variables before each test
+    // 各テストの前に環境変数をリセット
     process.env = { ...originalEnv };
   });
 
   afterEach(() => {
-    // Restore original environment variables after each test
+    // 各テストの後に元の環境変数を復元
     process.env = { ...originalEnv };
   });
 
   it("should accept valid configuration", async () => {
+    // 有効な設定を受け入れることを確認
     const validConfig = {
       EXAMPLE_PLUGIN_VARIABLE: "valid-value",
     };
@@ -50,6 +52,7 @@ describe("Plugin Configuration Schema", () => {
   });
 
   it("should accept empty configuration", async () => {
+    // 空の設定を受け入れることを確認
     const emptyConfig = {};
 
     if (initPlugin) {
@@ -64,6 +67,7 @@ describe("Plugin Configuration Schema", () => {
   });
 
   it("should accept configuration with additional properties", async () => {
+    // 追加のプロパティを持つ設定を受け入れることを確認
     const configWithExtra = {
       EXAMPLE_PLUGIN_VARIABLE: "valid-value",
       EXTRA_PROPERTY: "should be ignored",
@@ -81,8 +85,9 @@ describe("Plugin Configuration Schema", () => {
   });
 
   it("should reject invalid configuration", async () => {
+    // 無効な設定を拒否することを確認
     const invalidConfig = {
-      EXAMPLE_PLUGIN_VARIABLE: "", // Empty string violates min length
+      EXAMPLE_PLUGIN_VARIABLE: "", // 空文字列は最小長違反
     };
 
     if (initPlugin) {
@@ -97,40 +102,43 @@ describe("Plugin Configuration Schema", () => {
   });
 
   it("should set environment variables from valid config", async () => {
+    // 有効な設定から環境変数が設定されることを確認
     const testConfig = {
       EXAMPLE_PLUGIN_VARIABLE: "test-value",
     };
 
     if (initPlugin) {
-      // Ensure env variable doesn't exist beforehand
+      // 事前に環境変数が存在しないことを確認
       delete process.env.EXAMPLE_PLUGIN_VARIABLE;
 
-      // Initialize with config
+      // 設定で初期化
       await initPlugin(testConfig, createMockRuntime());
 
-      // Verify environment variable was set
+      // 環境変数が設定されたことを確認
       expect(process.env.EXAMPLE_PLUGIN_VARIABLE).toBe("test-value");
     }
   });
 
   it("should not override existing environment variables", async () => {
-    // Set environment variable before initialization
+    // 既存の環境変数を上書きしないことを確認
+    // 初期化前に環境変数を設定
     process.env.EXAMPLE_PLUGIN_VARIABLE = "pre-existing-value";
 
     const testConfig = {
-      // Omit the variable to test that existing env vars aren't overridden
+      // 変数を省略して、既存の環境変数が上書きされないことをテスト
     };
 
     if (initPlugin) {
       await initPlugin(testConfig, createMockRuntime());
 
-      // Verify environment variable was not changed
+      // 環境変数が変更されていないことを確認
       expect(process.env.EXAMPLE_PLUGIN_VARIABLE).toBe("pre-existing-value");
     }
   });
 
   it("should handle zod validation errors gracefully", async () => {
-    // Create a mock of zod's parseAsync that throws a ZodError
+    // zodのバリデーションエラーを適切に処理することを確認
+    // ZodErrorをスローするzodのparseAsyncのモックを作成
     const mockZodError = new z.ZodError([
       {
         code: z.ZodIssueCode.too_small,
@@ -142,51 +150,53 @@ describe("Plugin Configuration Schema", () => {
       },
     ]);
 
-    // Create a simple schema for mocking
+    // モック用の単純なスキーマを作成
     const schema = z.object({
       EXAMPLE_PLUGIN_VARIABLE: z.string().min(1),
     });
 
-    // Mock the parseAsync function
+    // parseAsync関数をモック
     const originalParseAsync = schema.parseAsync;
     schema.parseAsync = mock().mockRejectedValue(mockZodError);
 
     try {
-      // Use the mocked schema directly to avoid TypeScript errors
+      // TypeScriptエラーを避けるためにモックされたスキーマを直接使用
       await schema.parseAsync({});
-      // Should not reach here
+      // ここには到達しないはず
       expect(true).toBe(false);
     } catch (error) {
       expect(error).toBe(mockZodError);
     }
 
-    // Restore the original parseAsync
+    // 元のparseAsyncを復元
     schema.parseAsync = originalParseAsync;
   });
 
   it("should rethrow non-zod errors", async () => {
-    // Create a generic error
+    // zod以外のエラーを再スローすることを確認
+    // 一般的なエラーを作成
     const genericError = new Error("Something went wrong");
 
-    // Create a simple schema for mocking
+    // モック用の単純なスキーマを作成
     const schema = z.object({
       EXAMPLE_PLUGIN_VARIABLE: z.string().min(1),
     });
 
-    // Mock the parseAsync function
+    // parseAsync関数をモック
     const originalParseAsync = schema.parseAsync;
     schema.parseAsync = mock().mockRejectedValue(genericError);
 
     try {
-      // Use the mocked schema directly to avoid TypeScript errors
+      // TypeScriptエラーを避けるためにモックされたスキーマを直接使用
       await schema.parseAsync({});
-      // Should not reach here
+      // ここには到達しないはず
       expect(true).toBe(false);
     } catch (error) {
       expect(error).toBe(genericError);
     }
 
-    // Restore the original parseAsync
+    // 元のparseAsyncを復元
     schema.parseAsync = originalParseAsync;
   });
 });
+

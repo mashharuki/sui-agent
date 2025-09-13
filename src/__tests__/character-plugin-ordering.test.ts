@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュールと、テスト対象のキャラクター設定をインポート
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { character } from "../character";
 
@@ -5,7 +6,7 @@ describe("Project Starter Character Plugin Ordering", () => {
   let originalEnv: Record<string, string | undefined>;
 
   beforeEach(() => {
-    // Save original environment
+    // 元の環境変数を保存
     originalEnv = {
       ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
@@ -21,14 +22,14 @@ describe("Project Starter Character Plugin Ordering", () => {
       IGNORE_BOOTSTRAP: process.env.IGNORE_BOOTSTRAP,
     };
 
-    // Clear all environment variables
+    // すべての環境変数をクリア
     Object.keys(originalEnv).forEach((key) => {
       delete process.env[key];
     });
   });
 
   afterEach(() => {
-    // Restore original environment
+    // 元の環境変数を復元
     Object.entries(originalEnv).forEach(([key, value]) => {
       if (value === undefined) {
         delete process.env[key];
@@ -40,64 +41,69 @@ describe("Project Starter Character Plugin Ordering", () => {
 
   describe("Core Plugin Ordering", () => {
     it("should always include SQL plugin first", () => {
+      // SQLプラグインが常に最初に含まれていることを確認
       expect(character.plugins[0]).toBe("@elizaos/plugin-sql");
     });
 
     it("should include bootstrap plugin by default (not ignored)", () => {
+      // デフォルトでbootstrapプラグインが含まれていることを確認
       expect(character.plugins).toContain("@elizaos/plugin-bootstrap");
     });
 
     it("should exclude bootstrap plugin when IGNORE_BOOTSTRAP is set", () => {
-      // Note: Since character is imported statically, we test the conditional logic structure
-      // The actual dynamic behavior is tested in the CLI tests with getElizaCharacter()
+      // IGNORE_BOOTSTRAPが設定された場合にbootstrapプラグインが除外されることをテスト
+      // 注：characterは静的にインポートされるため、条件付きロジックの構造をテストします
+      // 実際の動的挙動はgetElizaCharacter()を使用したCLIテストでテストされます
       expect(character.plugins).toContain("@elizaos/plugin-bootstrap");
-      // In a dynamic context, bootstrap would be excluded when IGNORE_BOOTSTRAP is set
+      // 動的なコンテキストでは、IGNORE_BOOTSTRAPが設定されるとbootstrapは除外されます
     });
   });
 
   describe("Plugin Structure and Ordering", () => {
     it("should structure embedding plugins after text-only plugins", () => {
+      // テキストのみのプラグインの後に埋め込みプラグインが配置されることを確認
       const plugins = character.plugins;
 
-      // Find indices of key plugins
+      // 主要なプラグインのインデックスを検索
       const sqlIndex = plugins.indexOf("@elizaos/plugin-sql");
 
-      // SQL should be first
+      // SQLは最初にあるべき
       expect(sqlIndex).toBe(0);
     });
   });
 
   describe("Plugin Categories and Ordering", () => {
     it("should categorize plugins correctly", () => {
+      // プラグインが正しくカテゴリ分けされていることを確認
       const plugins = character.plugins;
 
-      // Core plugins
+      // コアプラグイン
       expect(plugins).toContain("@elizaos/plugin-sql");
 
-      // Text-only AI plugins (no embedding support)
+      // テキストのみのAIプラグイン（埋め込み非対応）
       const textOnlyPlugins = [
         "@elizaos/plugin-anthropic",
         "@elizaos/plugin-openrouter",
       ];
 
-      // Embedding-capable AI plugins
+      // 埋め込み対応のAIプラグイン
       const embeddingPlugins = [
         "@elizaos/plugin-openai",
         "@elizaos/plugin-ollama",
         "@elizaos/plugin-google-genai",
       ];
 
-      // Platform plugins
+      // プラットフォームプラグイン
       const platformPlugins = [
         "@elizaos/plugin-discord",
         "@elizaos/plugin-twitter",
         "@elizaos/plugin-telegram",
       ];
 
-      // Bootstrap plugin
+      // ブートストラッププラグイン
       const bootstrapPlugin = "@elizaos/plugin-bootstrap";
 
-      // Verify all categories are represented in the plugin structure
+      // すべてのカテゴリがプラグイン構造に表現されていることを確認
       const allExpectedPlugins = [
         "@elizaos/plugin-sql",
         ...textOnlyPlugins,
@@ -106,25 +112,26 @@ describe("Project Starter Character Plugin Ordering", () => {
         ...embeddingPlugins,
       ];
 
-      // Check that our character has conditional logic for all these plugins
-      // SQL should always be present
+      // characterにこれらのプラグインすべての条件付きロジックがあることを確認
+      // SQLは常に存在するべき
       expect(plugins).toContain("@elizaos/plugin-sql");
 
-      // Bootstrap should be present unless IGNORE_BOOTSTRAP is set
+      // BootstrapはIGNORE_BOOTSTRAPが設定されていない限り存在するべき
       expect(plugins).toContain("@elizaos/plugin-bootstrap");
     });
 
     it("should maintain proper ordering between plugin categories", () => {
+      // プラグインカテゴリ間の順序が正しいことを確認
       const plugins = character.plugins;
 
-      // Get indices of representative plugins from each category
+      // 各カテゴリの代表的なプラグインのインデックスを取得
       const sqlIndex = plugins.indexOf("@elizaos/plugin-sql");
       const bootstrapIndex = plugins.indexOf("@elizaos/plugin-bootstrap");
 
-      // SQL should be first
+      // SQLは最初にあるべき
       expect(sqlIndex).toBe(0);
 
-      // Bootstrap should be present
+      // Bootstrapは存在するべき
       if (bootstrapIndex !== -1) {
         expect(bootstrapIndex).toBeGreaterThan(sqlIndex);
       }
@@ -133,16 +140,16 @@ describe("Project Starter Character Plugin Ordering", () => {
 
   describe("Environment Variable Integration", () => {
     it("should have conditional logic for all AI providers", () => {
-      // Test that the character structure includes conditional logic
-      // Note: Since this is a static import, we test the structure rather than dynamic behavior
+      // すべてのAIプロバイダーに対する条件付きロジックがあることを確認
+      // 注：これは静的インポートなので、動的挙動ではなく構造をテストします
 
       const plugins = character.plugins;
 
-      // Should always have core plugins
+      // コアプラグインは常にあるべき
       expect(plugins).toContain("@elizaos/plugin-sql");
       expect(plugins).toContain("@elizaos/plugin-bootstrap");
 
-      // Should handle various AI providers
+      // 様々なAIプロバイダーを処理できるべき
       const hasAiProviders = plugins.some((plugin) =>
         [
           "@elizaos/plugin-anthropic",
@@ -155,46 +162,48 @@ describe("Project Starter Character Plugin Ordering", () => {
     });
 
     it("should include proper conditional checks for Twitter", () => {
-      // Twitter requires all 4 environment variables
-      // Test that the logic structure is sound
+      // Twitterは4つの環境変数をすべて必要とする
+      // ロジック構造が健全であることをテスト
       const plugins = character.plugins;
 
-      // Twitter should not be in default config (no env vars set)
+      // Twitterはデフォルト設定（環境変数なし）には含まれないべき
       expect(plugins).not.toContain("@elizaos/plugin-twitter");
     });
 
     it("should structure platform plugins between AI plugins", () => {
+      // プラットフォームプラグインがAIプラグインの間に配置されることを確認
       const plugins = character.plugins;
 
-      // Platform plugins should be positioned correctly in the array structure
+      // プラットフォームプラグインは配列構造内で正しく配置されるべき
       const sqlIndex = plugins.indexOf("@elizaos/plugin-sql");
       const bootstrapIndex = plugins.indexOf("@elizaos/plugin-bootstrap");
 
-      // Platform plugins (when present) should be between SQL and bootstrap
+      // プラットフォームプラグイン（存在する場合）はSQLとbootstrapの間にあるべき
       expect(sqlIndex).toBeLessThan(bootstrapIndex);
     });
   });
 
   describe("Embedding Plugin Priority Verification", () => {
     it("should structure embedding plugins at the end", () => {
+      // 埋め込みプラグインが最後に配置されることを確認
       const plugins = character.plugins;
 
-      // Get the last few plugins
+      // 最後のいくつかのプラグインを取得
       const lastThreePlugins = plugins.slice(-3);
 
-      // At least one should be an embedding-capable plugin
+      // 少なくとも1つは埋め込み対応プラグインであるべき
       const embeddingPlugins = [
         "@elizaos/plugin-openai",
         "@elizaos/plugin-ollama",
         "@elizaos/plugin-google-genai",
       ];
 
-      // Check if any embedding plugins are present
+      // 埋め込みプラグインが存在するか確認
       const embeddingPluginsPresent = plugins.filter((plugin) =>
         embeddingPlugins.includes(plugin),
       );
 
-      // If embedding plugins are present, at least one should be at the end
+      // 埋め込みプラグインが存在する場合、少なくとも1つは最後にあるべき
       if (embeddingPluginsPresent.length > 0) {
         const hasEmbeddingAtEnd = lastThreePlugins.some((plugin) =>
           embeddingPlugins.includes(plugin),
@@ -204,7 +213,7 @@ describe("Project Starter Character Plugin Ordering", () => {
     });
 
     it("should maintain consistent plugin structure", () => {
-      // Test multiple evaluations for consistency
+      // 複数回の評価で一貫性をテスト
       const plugins1 = character.plugins;
       const plugins2 = character.plugins;
 
@@ -215,14 +224,15 @@ describe("Project Starter Character Plugin Ordering", () => {
 
   describe("Plugin Logic Validation", () => {
     it("should follow the expected plugin ordering pattern", () => {
+      // 期待されるプラグイン順序パターンに従うことを確認
       const plugins = character.plugins;
 
-      // Expected pattern: [SQL, Text-only AI, Platforms, Bootstrap, Embedding AI]
-      // Verify the basic structure exists
-      expect(plugins[0]).toBe("@elizaos/plugin-sql"); // SQL always first
-      expect(plugins).toContain("@elizaos/plugin-bootstrap"); // Bootstrap present
+      // 期待されるパターン: [SQL, テキストのみAI, プラットフォーム, Bootstrap, 埋め込みAI]
+      // 基本構造が存在することを確認
+      expect(plugins[0]).toBe("@elizaos/plugin-sql"); // SQLは常に最初
+      expect(plugins).toContain("@elizaos/plugin-bootstrap"); // Bootstrapは存在する
 
-      // Verify ordering: text-only plugins before embedding plugins
+      // 順序を検証：テキストのみプラグインは埋め込みプラグインより前
       const textOnlyPlugins = [
         "@elizaos/plugin-anthropic",
         "@elizaos/plugin-openrouter",
@@ -248,6 +258,7 @@ describe("Project Starter Character Plugin Ordering", () => {
     });
 
     it("should have valid plugin names", () => {
+      // プラグイン名が有効であることを確認
       const plugins = character.plugins;
 
       plugins.forEach((plugin) => {
@@ -257,6 +268,7 @@ describe("Project Starter Character Plugin Ordering", () => {
     });
 
     it("should not have duplicate plugins", () => {
+      // 重複したプラグインがないことを確認
       const plugins = character.plugins;
       const uniquePlugins = [...new Set(plugins)];
 
@@ -266,7 +278,7 @@ describe("Project Starter Character Plugin Ordering", () => {
 
   describe("Complex Configuration Scenarios", () => {
     it("should handle complete AI provider setup correctly", () => {
-      // This tests the theoretical structure for when all providers are available
+      // すべてのプロバイダーが利用可能な場合の理論的な構造をテスト
       const allAiProviders = [
         "@elizaos/plugin-anthropic",
         "@elizaos/plugin-openrouter",
@@ -275,17 +287,18 @@ describe("Project Starter Character Plugin Ordering", () => {
         "@elizaos/plugin-google-genai",
       ];
 
-      // In a complete setup, at least one AI provider should be present
-      // Test the logical structure based on current environment
+      // 完全なセットアップでは、少なくとも1つのAIプロバイダーが存在するべき
+      // 現在の環境に基づいた論理構造をテスト
       const hasOtherAiProviders = character.plugins.some((plugin) =>
         allAiProviders.includes(plugin),
       );
 
-      // At least one AI provider should be present
+      // 少なくとも1つのAIプロバイダーが存在するべき
       expect(hasOtherAiProviders).toBe(true);
     });
 
     it("should validate embedding vs text-only categorization", () => {
+      // 埋め込み対応とテキストのみのカテゴリ分けを検証
       const embeddingCapablePlugins = [
         "@elizaos/plugin-openai",
         "@elizaos/plugin-ollama",
@@ -297,25 +310,25 @@ describe("Project Starter Character Plugin Ordering", () => {
         "@elizaos/plugin-openrouter",
       ];
 
-      // Verify our categorization is complete and mutually exclusive
+      // カテゴリ分けが完全で相互排他的であることを確認
       const intersection = embeddingCapablePlugins.filter((plugin) =>
         textOnlyPlugins.includes(plugin),
       );
 
-      expect(intersection.length).toBe(0); // No overlap
+      expect(intersection.length).toBe(0); // 重複なし
     });
 
     it("should structure conditional logic properly", () => {
-      // Test that the character has the right structure for conditional loading
+      // characterが条件付き読み込みのための正しい構造を持つことをテスト
       const plugins = character.plugins;
 
-      // Should have core plugins
+      // コアプラグインを持つべき
       expect(plugins).toContain("@elizaos/plugin-sql");
 
-      // Should have bootstrap (unless ignored)
+      // bootstrapを持つべき（無視されない限り）
       expect(plugins).toContain("@elizaos/plugin-bootstrap");
 
-      // Should have fallback logic working correctly
+      // フォールバックロジックが正しく機能しているべき
       const hasOtherAiProviders = plugins.some((plugin) =>
         [
           "@elizaos/plugin-anthropic",
@@ -326,8 +339,9 @@ describe("Project Starter Character Plugin Ordering", () => {
         ].includes(plugin),
       );
 
-      // Should have at least one AI provider
+      // 少なくとも1つのAIプロバイダーを持つべき
       expect(hasOtherAiProviders).toBe(true);
     });
   });
 });
+

@@ -1,32 +1,34 @@
+// Bunのテスト関連モジュールと、Node.jsのfs、path、およびBunのシェルユーティリティをインポート
 import { describe, expect, it, beforeAll, afterAll } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import { $ } from "bun";
 
 describe("Build Order Integration Test", () => {
+  // プロジェクトのルートディレクトリとdistディレクトリのパスを解決
   const rootDir = path.resolve(__dirname, "../..");
   const distDir = path.join(rootDir, "dist");
   const bunBuildMarker = path.join(distDir, "index.js");
 
   beforeAll(async () => {
-    // Clean dist directory before test
+    // テスト前にdistディレクトリをクリーンアップ
     if (fs.existsSync(distDir)) {
       await fs.promises.rm(distDir, { recursive: true, force: true });
     }
   });
 
   afterAll(async () => {
-    // Clean up after test
+    // テスト後にクリーンアップ
     if (fs.existsSync(distDir)) {
       await fs.promises.rm(distDir, { recursive: true, force: true });
     }
   });
 
   it("should ensure bun build outputs exist", async () => {
-    // Run the full build process
-    await $`cd ${rootDir} && bun run build`;
+    // 完全なビルドプロセスを実行
+    await cd ${rootDir} && bun run build`;
 
-    // Wait for the build to complete
+    // ビルドが完了するのを待つ
     let fileExists = false;
     for (let i = 0; i < 10; i++) {
       if (fs.existsSync(bunBuildMarker)) {
@@ -36,13 +38,14 @@ describe("Build Order Integration Test", () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    // Check that bun build output exists
+    // bun buildの出力が存在することを確認
     expect(fileExists).toBe(true);
 
-    // Verify bun also produced its expected outputs
+    // bunが期待される出力を生成したことも確認
     const distFiles = fs.readdirSync(distDir);
 
-    // Should have bun outputs (src/index.js)
+    // bunの出力（src/index.js）が含まれているべき
     expect(distFiles.some((file) => file === "index.js")).toBe(true);
-  }, 30000); // 30 second timeout for build process
+  }, 30000); // ビルドプロセスのタイムアウトを30秒に設定
 });
+

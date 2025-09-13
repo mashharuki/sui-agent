@@ -1,9 +1,10 @@
+// Bunのテスト関連モジュール、プラグイン、およびElizaOSコアのロガーをインポート
 import { describe, expect, it, beforeAll, afterAll, spyOn } from "bun:test";
 import plugin from "../plugin";
 import { logger } from "@elizaos/core";
 
 describe("Plugin Events", () => {
-  // Use spyOn like all other tests in the codebase
+  // コードベースの他のテストと同様にspyOnを使用
   beforeAll(() => {
     spyOn(logger, "info");
     spyOn(logger, "error");
@@ -12,6 +13,7 @@ describe("Plugin Events", () => {
   });
 
   it("should have events defined", () => {
+    // プラグインにイベントが定義されていることを確認
     expect(plugin.events).toBeDefined();
     if (plugin.events) {
       expect(Object.keys(plugin.events).length).toBeGreaterThan(0);
@@ -19,6 +21,7 @@ describe("Plugin Events", () => {
   });
 
   it("should handle MESSAGE_RECEIVED event", async () => {
+    // MESSAGE_RECEIVEDイベントを処理することを確認
     if (plugin.events && plugin.events.MESSAGE_RECEIVED) {
       expect(Array.isArray(plugin.events.MESSAGE_RECEIVED)).toBe(true);
       expect(plugin.events.MESSAGE_RECEIVED.length).toBeGreaterThan(0);
@@ -26,7 +29,7 @@ describe("Plugin Events", () => {
       const messageHandler = plugin.events.MESSAGE_RECEIVED[0];
       expect(typeof messageHandler).toBe("function");
 
-      // Use any type to bypass strict type checking for testing
+      // テストのために厳密な型チェックをバイパスするためにany型を使用
       const mockParams: any = {
         message: {
           id: "test-id",
@@ -36,10 +39,10 @@ describe("Plugin Events", () => {
         runtime: {},
       };
 
-      // Call the event handler
+      // イベントハンドラを呼び出し
       await messageHandler(mockParams);
 
-      // Verify logger was called with correct Pino-style structured logging
+      // ロガーが正しいPinoスタイルの構造化ロギングで呼び出されたことを確認
       expect(logger.info).toHaveBeenCalledWith(
         "MESSAGE_RECEIVED event received",
       );
@@ -51,6 +54,7 @@ describe("Plugin Events", () => {
   });
 
   it("should handle VOICE_MESSAGE_RECEIVED event", async () => {
+    // VOICE_MESSAGE_RECEIVEDイベントを処理することを確認
     if (plugin.events && plugin.events.VOICE_MESSAGE_RECEIVED) {
       expect(Array.isArray(plugin.events.VOICE_MESSAGE_RECEIVED)).toBe(true);
       expect(plugin.events.VOICE_MESSAGE_RECEIVED.length).toBeGreaterThan(0);
@@ -58,7 +62,7 @@ describe("Plugin Events", () => {
       const voiceHandler = plugin.events.VOICE_MESSAGE_RECEIVED[0];
       expect(typeof voiceHandler).toBe("function");
 
-      // Use any type to bypass strict type checking for testing
+      // テストのために厳密な型チェックをバイパスするためにany型を使用
       const mockParams: any = {
         message: {
           id: "test-id",
@@ -68,10 +72,10 @@ describe("Plugin Events", () => {
         runtime: {},
       };
 
-      // Call the event handler
+      // イベントハンドラを呼び出し
       await voiceHandler(mockParams);
 
-      // Verify logger was called with correct Pino-style structured logging
+      // ロガーが正しいPinoスタイルの構造化ロギングで呼び出されたことを確認
       expect(logger.info).toHaveBeenCalledWith(
         "VOICE_MESSAGE_RECEIVED event received",
       );
@@ -83,6 +87,7 @@ describe("Plugin Events", () => {
   });
 
   it("should handle WORLD_CONNECTED event", async () => {
+    // WORLD_CONNECTEDイベントを処理することを確認
     if (plugin.events && plugin.events.WORLD_CONNECTED) {
       expect(Array.isArray(plugin.events.WORLD_CONNECTED)).toBe(true);
       expect(plugin.events.WORLD_CONNECTED.length).toBeGreaterThan(0);
@@ -90,7 +95,7 @@ describe("Plugin Events", () => {
       const connectedHandler = plugin.events.WORLD_CONNECTED[0];
       expect(typeof connectedHandler).toBe("function");
 
-      // Use any type to bypass strict type checking for testing
+      // テストのために厳密な型チェックをバイパスするためにany型を使用
       const mockParams: any = {
         world: {
           id: "test-world-id",
@@ -102,10 +107,10 @@ describe("Plugin Events", () => {
         runtime: {},
       };
 
-      // Call the event handler
+      // イベントハンドラを呼び出し
       await connectedHandler(mockParams);
 
-      // Verify logger was called with correct Pino-style structured logging
+      // ロガーが正しいPinoスタイルの構造化ロギングで呼び出されたことを確認
       expect(logger.info).toHaveBeenCalledWith(
         "WORLD_CONNECTED event received",
       );
@@ -117,6 +122,7 @@ describe("Plugin Events", () => {
   });
 
   it("should handle WORLD_JOINED event", async () => {
+    // WORLD_JOINEDイベントを処理することを確認
     if (plugin.events && plugin.events.WORLD_JOINED) {
       expect(Array.isArray(plugin.events.WORLD_JOINED)).toBe(true);
       expect(plugin.events.WORLD_JOINED.length).toBeGreaterThan(0);
@@ -124,7 +130,7 @@ describe("Plugin Events", () => {
       const joinedHandler = plugin.events.WORLD_JOINED[0];
       expect(typeof joinedHandler).toBe("function");
 
-      // Use any type to bypass strict type checking for testing
+      // テストのために厳密な型チェックをバイパスするためにany型を使用
       const mockParams: any = {
         world: {
           id: "test-world-id",
@@ -140,10 +146,10 @@ describe("Plugin Events", () => {
         runtime: {},
       };
 
-      // Call the event handler
+      // イベントハンドラを呼び出し
       await joinedHandler(mockParams);
 
-      // Verify logger was called with correct Pino-style structured logging
+      // ロガーが正しいPinoスタイルの構造化ロギングで呼び出されたことを確認
       expect(logger.info).toHaveBeenCalledWith("WORLD_JOINED event received");
       expect(logger.info).toHaveBeenCalledWith(
         { keys: expect.any(Array) },
@@ -152,3 +158,4 @@ describe("Plugin Events", () => {
     }
   });
 });
+

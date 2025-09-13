@@ -1,8 +1,10 @@
+// Bunのテスト関連モジュールとプラグインをインポート
 import { describe, expect, it, mock } from "bun:test";
 import plugin from "../plugin";
 
 describe("Plugin Routes", () => {
   it("should have routes defined", () => {
+    // プラグインにルートが定義されていることを確認
     expect(plugin.routes).toBeDefined();
     if (plugin.routes) {
       expect(Array.isArray(plugin.routes)).toBe(true);
@@ -11,6 +13,7 @@ describe("Plugin Routes", () => {
   });
 
   it("should have a route for /helloworld", () => {
+    // /helloworldのルートが存在することを確認
     if (plugin.routes) {
       const helloWorldRoute = plugin.routes.find(
         (route) => route.path === "/helloworld",
@@ -25,25 +28,26 @@ describe("Plugin Routes", () => {
   });
 
   it("should handle route requests correctly", async () => {
+    // ルートリクエストを正しく処理することを確認
     if (plugin.routes) {
       const helloWorldRoute = plugin.routes.find(
         (route) => route.path === "/helloworld",
       );
 
       if (helloWorldRoute && helloWorldRoute.handler) {
-        // Create mock request and response objects
+        // モックのリクエストとレスポンスオブジェクトを作成
         const mockReq = {};
         const mockRes = {
           json: mock(),
         };
 
-        // Mock runtime object as third parameter
+        // 3番目のパラメータとしてモックのランタイムオブジェクトを作成
         const mockRuntime = {} as any;
 
-        // Call the route handler
+        // ルートハンドラを呼び出し
         await helloWorldRoute.handler(mockReq, mockRes, mockRuntime);
 
-        // Verify response
+        // レスポンスを検証
         expect(mockRes.json).toHaveBeenCalledTimes(1);
         expect(mockRes.json).toHaveBeenCalledWith({
           message: "Hello World!",
@@ -53,27 +57,29 @@ describe("Plugin Routes", () => {
   });
 
   it("should validate route structure", () => {
+    // ルートの構造を検証
     if (plugin.routes) {
-      // Validate each route
+      // 各ルートを検証
       plugin.routes.forEach((route) => {
         expect(route).toHaveProperty("path");
         expect(route).toHaveProperty("type");
         expect(route).toHaveProperty("handler");
 
-        // Path should be a string starting with /
+        // pathは/で始まる文字列であるべき
         expect(typeof route.path).toBe("string");
         expect(route.path.startsWith("/")).toBe(true);
 
-        // Type should be a valid HTTP method
+        // typeは有効なHTTPメソッドであるべき
         expect(["GET", "POST", "PUT", "DELETE", "PATCH"]).toContain(route.type);
 
-        // Handler should be a function
+        // handlerは関数であるべき
         expect(typeof route.handler).toBe("function");
       });
     }
   });
 
   it("should have unique route paths", () => {
+    // ルートパスが一意であることを確認
     if (plugin.routes) {
       const paths = plugin.routes.map((route) => route.path);
       const uniquePaths = new Set(paths);
@@ -81,3 +87,4 @@ describe("Plugin Routes", () => {
     }
   });
 });
+

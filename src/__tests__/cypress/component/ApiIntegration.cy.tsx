@@ -2,7 +2,7 @@ import React from "react";
 import "../../../frontend/index.css";
 
 /**
- * Example component that fetches data from an API using React state
+ * Reactのstateを使用してAPIからデータをフェッチするコンポーネントの例
  */
 const DataFetchingComponent: React.FC<{ agentId: string }> = ({ agentId }) => {
   const [data, setData] = React.useState<any>(null);
@@ -78,10 +78,10 @@ describe("API Integration Tests", () => {
 
       cy.mount(<DataFetchingComponent agentId="test-123" />);
 
-      // Wait for the API call
+      // API呼び出しを待機
       cy.wait("@getAgentData");
 
-      // Check data is displayed
+      // データが表示されることを確認
       cy.get('[data-testid="data-display"]').should("be.visible");
       cy.contains("Agent: test-123").should("be.visible");
       cy.contains("Action 1").should("be.visible");
@@ -97,10 +97,10 @@ describe("API Integration Tests", () => {
 
       cy.mount(<DataFetchingComponent agentId="test-123" />);
 
-      // Wait for the failed API call
+      // 失敗したAPI呼び出しを待機
       cy.wait("@getAgentDataError");
 
-      // Check error is displayed
+      // エラーが表示されることを確認
       cy.get('[data-testid="error"]').should("be.visible");
       cy.get('[data-testid="error"]').should("contain", "Failed to fetch data");
       cy.get('[data-testid="error"]').should("have.class", "text-red-500");
@@ -113,7 +113,7 @@ describe("API Integration Tests", () => {
 
       cy.mount(<DataFetchingComponent agentId="test-123" />);
 
-      // Network errors might not trigger the wait, so we check for error directly
+      // ネットワークエラーはwaitをトリガーしない場合があるため、直接エラーを確認
       cy.get('[data-testid="error"]', { timeout: 10000 }).should("be.visible");
     });
 
@@ -129,7 +129,7 @@ describe("API Integration Tests", () => {
         body: secondMockData,
       }).as("getSecondAgent");
 
-      // Create a component that can change agent ID
+      // エージェントIDを変更できるコンポーネントを作成
       const TestWrapper = () => {
         const [agentId, setAgentId] = React.useState("agent-1");
 
@@ -150,7 +150,7 @@ describe("API Integration Tests", () => {
       cy.wait("@getFirstAgent");
       cy.contains("First Agent Action").should("be.visible");
 
-      // Click to change agent
+      // クリックしてエージェントを変更
       cy.get('[data-testid="change-agent"]').click();
       cy.wait("@getSecondAgent");
       cy.contains("Second Agent Action").should("be.visible");
@@ -170,7 +170,7 @@ describe("API Integration Tests", () => {
     });
 
     it("should handle different response formats", () => {
-      // Test empty response
+      // 空のレスポンスをテスト
       cy.intercept("GET", "/api/agent/empty/data", {
         body: {},
       }).as("emptyResponse");
@@ -178,11 +178,11 @@ describe("API Integration Tests", () => {
       cy.wait("@emptyResponse");
       cy.get('[data-testid="data-display"]').should("be.visible");
 
-      // Test null items
+      // nullアイテムをテスト
       cy.intercept("GET", "/api/agent/null/data", {
         body: { items: null },
       }).as("nullResponse");
-      // Create a new mount point for the second test
+      // 2番目のテスト用に新しいマウントポイントを作成
       cy.then(() => {
         cy.mount(<DataFetchingComponent agentId="null" />);
         cy.wait("@nullResponse");
@@ -193,38 +193,39 @@ describe("API Integration Tests", () => {
 });
 
 /**
- * API TESTING PATTERNS IN CYPRESS
+ * CYPRESSでのAPIテストパターン
  *
- * 1. INTERCEPTING REQUESTS
- *    cy.intercept() allows you to:
- *    - Mock responses
- *    - Delay responses
- *    - Force errors
- *    - Validate request data
+ * 1. リクエストのインターセプト
+ *    cy.intercept() を使用すると、以下が可能になります：
+ *    - レスポンスのモック
+ *    - レスポンスの遅延
+ *    - エラーの強制
+ *    - リクエストデータの検証
  *
- * 2. WAITING FOR REQUESTS
- *    Use aliases with .as() and cy.wait() to ensure
- *    requests complete before making assertions
+ * 2. リクエストの待機
+ *    .as() と cy.wait() を使用して、アサーションを行う前に
+ *    リクエストが完了することを確認します
  *
- * 3. ERROR SCENARIOS
- *    Test all error cases:
- *    - Server errors (4xx, 5xx)
- *    - Network failures
- *    - Timeout scenarios
- *    - Invalid responses
+ * 3. エラーシナリオ
+ *    すべてのエラーケースをテストします：
+ *    - サーバーエラー (4xx, 5xx)
+ *    - ネットワーク障害
+ *    - タイムアウトシナリオ
+ *    - 無効なレスポンス
  *
- * 4. LOADING STATES
- *    Always test loading indicators
- *    Use delays to ensure they appear
+ * 4. ローディング状態
+ *    常にローディングインジケータをテストします
+ *    遅延を使用して、それらが表示されることを確認します
  *
- * 5. DATA UPDATES
- *    Test how components handle:
- *    - Prop changes
- *    - Refetching
- *    - Cache invalidation
+ * 5. データ更新
+ *    コンポーネントが以下をどのように処理するかをテストします：
+ *    - プロパティの変更
+ *    - 再フェッチ
+ *    - キャッシュの無効化
  *
- * NOTE: This example uses plain React state instead of React Query
- * to avoid dependency optimization issues in the test environment.
- * In production, you would typically use React Query or similar
- * libraries for better caching and request management.
+ * 注：この例では、テスト環境での依存関係の最適化問題を回避するために、
+ * React Queryの代わりにプレーンなReact stateを使用しています。
+ * 本番環境では、通常、より良いキャッシングとリクエスト管理のために
+ * React Queryや同様のライブラリを使用します。
  */
+

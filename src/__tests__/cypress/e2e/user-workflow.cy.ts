@@ -1,57 +1,57 @@
 /**
- * E2E Tests for Complete User Workflows
+ * 完全なユーザーワークフローのE2Eテスト
  *
- * These tests simulate real user journeys through the application,
- * testing multiple features in sequence as a user would experience them.
+ * これらのテストは、アプリケーションを通じた実際のユーザージャーニーをシミュレートし、
+ * ユーザーが体験するであろう複数の機能を連続してテストします。
  */
 
 describe("Complete User Workflow E2E Tests", () => {
   describe("New User Onboarding", () => {
     it("should complete the full onboarding flow", () => {
-      // Start at the home page
+      // ホームページから開始
       cy.visit("/");
 
-      // Check for welcome message or onboarding prompt
+      // ウェルカムメッセージまたはオンボーディングプロンプトを確認
       cy.get("body").then(($body) => {
         if (
           $body.text().includes("Welcome") ||
           $body.text().includes("Get Started")
         ) {
-          // Click get started if available
+          // 「Get Started」があればクリック
           cy.contains(/get started|start|begin/i)
             .first()
             .click();
         }
       });
 
-      // Navigate to agents/chat
+      // エージェント/チャットに移動
       cy.get(
-        'a[href*="agent"], button:contains("agent"), a[href*="chat"], button:contains("chat")',
+        'a[href*="agent"], button:contains("agent"), a[href*="chat"], button:contains("chat")'
       )
         .first()
         .click({ force: true });
 
-      // Wait for page to load
+      // ページの読み込みを待つ
       cy.wait(1000);
 
-      // Send first message
+      // 最初のメッセージを送信
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type("Hello, I am a new user{enter}");
 
-      // Wait for response
+      // 応答を待つ
       cy.get('[data-testid*="message"], [class*="message"], [role="article"]', {
         timeout: 15000,
       }).should("have.length.greaterThan", 0);
 
-      // Continue conversation
+      // 会話を続ける
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type("What can you help me with?{enter}");
 
-      // Verify we got another response
+      // 別の応答を受け取ったことを確認
       cy.get('[data-testid*="message"], [class*="message"], [role="article"]', {
         timeout: 15000,
       }).should("have.length.greaterThan", 1);
@@ -62,26 +62,26 @@ describe("Complete User Workflow E2E Tests", () => {
     it("should configure and interact with an agent", () => {
       cy.visit("/");
 
-      // Look for settings or configuration
+      // 設定または構成を探す
       cy.get(
-        'a[href*="settings"], button:contains("settings"), a[href*="config"], button:contains("config")',
+        'a[href*="settings"], button:contains("settings"), a[href*="config"], button:contains("config")'
       )
         .first()
         .then(($elem) => {
           if ($elem.length) {
             cy.wrap($elem).click({ force: true });
 
-            // Look for agent configuration options
+            // エージェント設定オプションを探す
             cy.contains(/agent|model|personality/i).should("be.visible");
 
-            // Navigate back to chat
+            // チャットに戻る
             cy.get('a[href*="chat"], button:contains("chat")')
               .first()
               .click({ force: true });
           }
         });
 
-      // Test agent with specific queries
+      // 特定のクエリでエージェントをテスト
       const queries = [
         "What is your name?",
         "Tell me a joke",
@@ -94,10 +94,10 @@ describe("Complete User Workflow E2E Tests", () => {
           .first()
           .type(`${query}{enter}`);
 
-        // Wait for response before next query
+        // 次のクエリの前に応答を待つ
         cy.wait(2000);
 
-        // Verify response received
+        // 応答が受信されたことを確認
         cy.get(
           '[data-testid*="message"], [class*="message"], [role="article"]',
         ).should("have.length.greaterThan", index * 2);
@@ -109,34 +109,34 @@ describe("Complete User Workflow E2E Tests", () => {
     it("should maintain state across page refreshes", () => {
       cy.visit("/");
 
-      // Navigate to chat
+      // チャットに移動
       cy.get(
-        'a[href*="chat"], a[href*="agent"], button:contains("chat"), button:contains("agent")',
+        'a[href*="chat"], a[href*="agent"], button:contains("chat"), button:contains("agent")'
       )
         .first()
         .click({ force: true });
 
-      // Send a message
+      // メッセージを送信
       const testMessage = "Remember this message for testing";
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type(`${testMessage}{enter}`);
 
-      // Wait for response
+      // 応答を待つ
       cy.wait(3000);
 
-      // Refresh the page
+      // ページをリフレッシュ
       cy.reload();
 
-      // Check if conversation history is maintained
+      // 会話履歴が維持されていることを確認
       cy.contains(testMessage, { timeout: 10000 }).should("be.visible");
     });
 
     it("should handle multiple chat sessions", () => {
       cy.visit("/");
 
-      // Create first chat session
+      // 最初のチャットセッションを作成
       cy.get('a[href*="chat"], button:contains("chat")')
         .first()
         .click({ force: true });
@@ -148,7 +148,7 @@ describe("Complete User Workflow E2E Tests", () => {
 
       cy.wait(2000);
 
-      // Look for new chat/session button
+      // 新しいチャット/セッションボタンを探す
       cy.get("button")
         .filter(':contains("New"), :contains("new"), [aria-label*="new"]')
         .first()
@@ -156,13 +156,13 @@ describe("Complete User Workflow E2E Tests", () => {
           if ($btn.length) {
             cy.wrap($btn).click();
 
-            // Send message in new session
+            // 新しいセッションでメッセージを送信
             cy.get('input[type="text"], textarea, [contenteditable="true"]')
               .filter(":visible")
               .first()
               .type("Second session message{enter}");
 
-            // Verify messages are separate
+            // メッセージが別々であることを確認
             cy.contains("Second session message").should("be.visible");
             cy.contains("First session message").should("not.be.visible");
           }
@@ -174,10 +174,10 @@ describe("Complete User Workflow E2E Tests", () => {
     it("should recover from errors and continue working", () => {
       cy.visit("/");
 
-      // Intercept network requests to simulate offline
+      // オフラインをシミュレートするためにネットワークリクエストをインターセプト
       cy.intercept("*", { forceNetworkError: true }).as("offlineMode");
 
-      // Try to send a message
+      // メッセージを送信しようとする
       cy.get('a[href*="chat"], button:contains("chat")')
         .first()
         .click({ force: true });
@@ -187,23 +187,23 @@ describe("Complete User Workflow E2E Tests", () => {
         .first()
         .type("Offline message{enter}");
 
-      // Should show error
+      // エラーが表示されるべき
       cy.contains(/offline|error|connection|failed/i, { timeout: 5000 }).should(
         "be.visible",
       );
 
-      // Remove the offline intercept to go back online
+      // オンラインに戻るためにオフラインインターセプトを削除
       cy.intercept("*", (req) => {
         req.continue();
       }).as("onlineMode");
 
-      // Retry sending
+      // 送信を再試行
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
         .type("Online message{enter}");
 
-      // Should work now
+      // 今度は動作するはず
       cy.contains("Online message", { timeout: 10000 }).should("be.visible");
     });
   });
@@ -216,23 +216,23 @@ describe("Complete User Workflow E2E Tests", () => {
         .first()
         .click({ force: true });
 
-      // Send multiple messages rapidly
+      // 複数のメッセージを素早く送信
       for (let i = 0; i < 5; i++) {
         cy.get('input[type="text"], textarea, [contenteditable="true"]')
           .filter(":visible")
           .first()
           .type(`Rapid message ${i}{enter}`);
 
-        // Very short delay
+        // 非常に短い遅延
         cy.wait(100);
       }
 
-      // All messages should be visible
+      // すべてのメッセージが表示されるべき
       for (let i = 0; i < 5; i++) {
         cy.contains(`Rapid message ${i}`).should("be.visible");
       }
 
-      // Should still be responsive
+      // まだ応答可能であるべき
       cy.get('input[type="text"], textarea, [contenteditable="true"]')
         .filter(":visible")
         .first()
@@ -242,36 +242,37 @@ describe("Complete User Workflow E2E Tests", () => {
 });
 
 /**
- * WORKFLOW TESTING BEST PRACTICES
+ * ワークフローテストのベストプラクティス
  *
- * 1. COMPLETE JOURNEYS
- *    - Test from start to finish
- *    - Include navigation between features
- *    - Verify state persistence
- *    - Test error recovery
+ * 1. 完全なジャーニー
+ *    - 最初から最後までテスト
+ *    - 機能間のナビゲーションを含む
+ *    - 状態の永続性を検証
+ *    - エラー回復をテスト
  *
- * 2. REALISTIC SCENARIOS
- *    - New user experience
- *    - Power user workflows
- *    - Edge cases and errors
- *    - Performance under load
+ * 2. 現実的なシナリオ
+ *    - 新規ユーザーエクスペリエンス
+ *    - パワーユーザーのワークフロー
+ *    - エッジケースとエラー
+ *    - 負荷時のパフォーマンス
  *
- * 3. STATE MANAGEMENT
- *    - Test across refreshes
- *    - Multiple sessions
- *    - Browser back/forward
- *    - Local storage
+ * 3. 状態管理
+ *    - リフレッシュをまたいでテスト
+ *    - 複数のセッション
+ *    - ブラウザの戻る/進む
+ *    - ローカルストレージ
  *
- * 4. INTEGRATION POINTS
- *    - API interactions
- *    - Real-time updates
- *    - Authentication flows
- *    - Data persistence
+ * 4. 統合ポイント
+ *    - APIインタラクション
+ *    - リアルタイム更新
+ *    - 認証フロー
+ *    - データ永続性
  *
- * WORKFLOW PATTERNS:
- * - Always start from a clean state
- * - Use realistic timing between actions
- * - Verify intermediate states
- * - Test both happy and error paths
- * - Consider mobile workflows
+ * ワークフローのパターン：
+ * - 常にクリーンな状態から開始
+ * - アクション間に現実的なタイミングを使用
+ * - 中間状態を検証
+ * - ハッピーパスとエラーパスの両方をテスト
+ * - モバイルワークフローを考慮
  */
+

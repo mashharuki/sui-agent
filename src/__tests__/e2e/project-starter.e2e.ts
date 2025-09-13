@@ -17,104 +17,105 @@ import { v4 as uuidv4 } from "uuid";
  * E2E (End-to-End) Test Suite for ElizaOS Project Starter
  * ========================================================
  *
- * This file contains end-to-end tests that run within a real ElizaOS runtime environment
- * for the project starter template. Unlike unit tests that test individual components
- * in isolation, e2e tests validate the entire project behavior in a production-like environment.
+ * このファイルには、ElizaOSの実際のランタイム環境で実行されるエンドツーエンドのテストが含まれています
+ * プロジェクトスターターテンプレート用です。個々のコンポーネントを分離してテストする単体テストとは異なり、
+ * e2eテストは、本番に近い環境でプロジェクト全体の動作を検証します。
  *
- * NOTE: These tests are exported in src/index.ts and executed by the ElizaOS test runner.
+ * 注：これらのテストはsrc/index.tsでエクスポートされ、ElizaOSテストランナーによって実行されます。
  *
- * HOW E2E TESTS WORK:
+ * E2Eテストの仕組み：
  * -------------------
- * 1. Tests are executed by the ElizaOS test runner using `elizaos test e2e`
- * 2. Each test receives a real runtime instance with the project loaded
- * 3. Tests can interact with the runtime just like in production
- * 4. Database operations use a temporary PGlite instance
- * 5. All test data is cleaned up after execution
+ * 1. テストは `elizaos test e2e` を使用してElizaOSテストランナーによって実行されます
+ * 2. 各テストは、プロジェクトがロードされた実際のランタイムインスタンスを受け取ります
+ * 3. テストは本番環境と同様にランタイムと対話できます
+ * 4. データベース操作は一時的なPGliteインスタンスを使用します
+ * 5. すべてのテストデータは実行後にクリーンアップされます
  *
- * STRUCTURE:
+ * 構造：
  * ----------
- * - Core Project Tests: Validate basic project setup
- * - Natural Language Processing Tests: Test agent responses
- * - Action & Provider Tests: Test custom actions and providers
- * - Service & System Tests: Test services and integrations
+ * - コアプロジェクトテスト：基本的なプロジェクト設定を検証します
+ * - 自然言語処理テスト：エージェントの応答をテストします
+ * - アクション＆プロバイダーテスト：カスタムアクションとプロバイダーをテストします
+ * - サービス＆システムテスト：サービスと統合をテストします
  *
- * BEST PRACTICES:
+ * ベストプラクティス：
  * ---------------
- * - Keep tests independent - each test should work in isolation
- * - Use meaningful test names that describe what's being tested
- * - Avoid hard-coding values - use the runtime's actual data
- * - Test both success and error cases
- * - Clean up any resources created during tests
+ * - テストを独立させる - 各テストは分離して動作する必要があります
+ * - テスト対象を説明する意味のあるテスト名を使用する
+ * - 値をハードコーディングしない - ランタイムの実際のデータを使用する
+ * - 成功ケースとエラーケースの両方をテストする
+ * - テスト中に作成されたリソースをクリーンアップする
  *
- * WORKING WITH THE RUNTIME:
+ * ランタイムの操作：
  * -------------------------
- * The runtime parameter provides access to:
- * - runtime.agentId - The agent's unique ID
- * - runtime.character - The loaded character configuration
- * - runtime.actions - Array of registered actions
- * - runtime.providers - Array of registered providers
- * - runtime.services - Map of registered services
- * - runtime.evaluate() - Run evaluators
- * - runtime.processActions() - Process actions with messages
- * - runtime.composeState() - Compose state with providers
- * - runtime.getMemories() - Retrieve stored memories
- * - runtime.createMemory() - Store new memories
+ * runtimeパラメータは以下へのアクセスを提供します：
+ * - runtime.agentId - エージェントの一意のID
+ * - runtime.character - ロードされたキャラクター設定
+ * - runtime.actions - 登録されたアクションの配列
+ * - runtime.providers - 登録されたプロバイダーの配列
+ * - runtime.services - 登録されたサービスのマップ
+ * - runtime.evaluate() - 評価者を実行
+ * - runtime.processActions() - メッセージ付きでアクションを処理
+ * - runtime.composeState() - プロバイダー付きで状態を作成
+ * - runtime.getMemories() - 保存されたメモリを取得
+ * - runtime.createMemory() - 新しいメモリを保存
  *
- * ASYNC/AWAIT:
+ * ASYNC/AWAIT：
  * ------------
- * All test functions are async and can use await for:
- * - Database operations
- * - Message processing
- * - Service interactions
- * - Any other async operations
+ * すべてのテスト関数は非同期であり、以下にawaitを使用できます：
+ * - データベース操作
+ * - メッセージ処理
+ * - サービスとの対話
+ * - その他の非同期操作
  *
- * ERROR HANDLING:
+ * エラーハンドリング：
  * ---------------
- * - Throw errors for test failures
- * - The test runner will catch and report them
- * - Use try/catch for expected errors
- * - Include descriptive error messages
+ * - テストの失敗にはエラーをスローする
+ * - テストランナーがそれらをキャッチして報告します
+ * - 予期されるエラーにはtry/catchを使用する
+ * - 説明的なエラーメッセージを含める
  */
 
-// Define the test suite interface
+// テストケースのインターフェースを定義
 interface TestCase {
   name: string;
   fn: (runtime: IAgentRuntime) => Promise<void>;
 }
 
+// テストスイートのインターフェースを定義
 interface TestSuite {
   name: string;
   tests: TestCase[];
 }
 
 /**
- * Main E2E Test Suite for Project Starter
+ * Project StarterのメインE2Eテストスイート
  *
- * This suite tests the complete project functionality including:
- * - Project initialization
- * - Character loading
- * - Agent responses
- * - Memory operations
- * - Plugin system
+ * このスイートは、以下を含む完全なプロジェクト機能をテストします：
+ * - プロジェクトの初期化
+ * - キャラクターの読み込み
+ * - エージェントの応答
+ * - メモリ操作
+ * - プラグインシステム
  */
 export const ProjectStarterTestSuite: TestSuite = {
   name: "Project Starter E2E Tests",
   tests: [
-    // ===== Core Project Tests =====
+    // ===== コアプロジェクトテスト =====
     {
       name: "project_should_initialize_correctly",
       fn: async (runtime: IAgentRuntime) => {
-        // Verify runtime is initialized
+        // ランタイムが初期化されていることを確認
         if (!runtime) {
           throw new Error("Runtime is not initialized");
         }
 
-        // Check agent ID
+        // エージェントIDを確認
         if (!runtime.agentId) {
           throw new Error("Agent ID is not set");
         }
 
-        // Verify character is loaded
+        // キャラクターがロードされていることを確認
         if (!runtime.character) {
           throw new Error("Character is not loaded");
         }
@@ -128,7 +129,7 @@ export const ProjectStarterTestSuite: TestSuite = {
       fn: async (runtime: IAgentRuntime) => {
         const character = runtime.character;
 
-        // Verify character has required fields
+        // キャラクターが必要なフィールドを持っていることを確認
         if (!character.name) {
           throw new Error("Character name is missing");
         }
@@ -137,8 +138,8 @@ export const ProjectStarterTestSuite: TestSuite = {
           throw new Error("Character bio is missing or empty");
         }
 
-        // Lore is optional in Character type
-        // Skip lore check as it's not a required field
+        // LoreはCharacter型でオプション
+        // loreは必須フィールドではないため、チェックをスキップ
 
         if (
           !character.messageExamples ||
@@ -147,7 +148,7 @@ export const ProjectStarterTestSuite: TestSuite = {
           throw new Error("Character messageExamples are missing or empty");
         }
 
-        // Topics and adjectives are optional
+        // topicsとadjectivesはオプション
         if (character.topics) {
           logger.info(`  - Has ${character.topics.length} topics`);
         }
@@ -156,12 +157,12 @@ export const ProjectStarterTestSuite: TestSuite = {
           logger.info(`  - Has ${character.adjectives.length} adjectives`);
         }
 
-        // Check settings object
+        // settingsオブジェクトを確認
         if (!character.settings) {
           throw new Error("Character settings are missing");
         }
 
-        // Verify plugins array exists (may be empty)
+        // plugins配列が存在することを確認（空の場合もある）
         if (!Array.isArray(character.plugins)) {
           throw new Error("Character plugins is not an array");
         }
@@ -172,20 +173,20 @@ export const ProjectStarterTestSuite: TestSuite = {
       },
     },
 
-    // ===== Natural Language Processing Tests =====
+    // ===== 自然言語処理テスト =====
     {
       name: "agent_should_respond_to_greeting",
       fn: async (runtime: IAgentRuntime) => {
-        // Create a simple test to verify agent can process messages
-        // Note: In a real E2E test environment, the agent might not have
-        // a language model configured, so we'll just verify the system
-        // can handle message processing without errors
+        // エージェントがメッセージを処理できることを確認するための簡単なテストを作成
+        // 注：実際のE2Eテスト環境では、エージェントに
+        // 言語モデルが設定されていない可能性があるため、システムが
+        // エラーなしでメッセージ処理を処理できることを確認するだけです
 
         const testRoomId = uuidv4() as UUID;
         const testUserId = uuidv4() as UUID;
 
         try {
-          // Ensure connections exist
+          // 接続が存在することを確認
           await runtime.ensureConnection({
             entityId: testUserId,
             roomId: testRoomId,
@@ -196,7 +197,7 @@ export const ProjectStarterTestSuite: TestSuite = {
             type: ChannelType.DM,
           });
 
-          // Create a test message
+          // テストメッセージを作成
           const userMessage: Memory = {
             id: uuidv4() as UUID,
             entityId: testUserId,
@@ -210,14 +211,14 @@ export const ProjectStarterTestSuite: TestSuite = {
             embedding: [],
           };
 
-          // Store the message
+          // メッセージを保存
           await runtime.createMemory(userMessage, "messages", false);
 
-          // In a real scenario with an LLM, we would process the message
-          // For now, we just verify the system can handle it
+          // LLMを使用した実際のシナリオでは、メッセージを処理します
+          // 現時点では、システムがそれを処理できることを確認するだけです
           logger.info("✓ Agent can receive and store messages");
         } catch (error) {
-          // If connection setup fails, it's a test environment limitation
+          // 接続設定が失敗した場合、それはテスト環境の制限です
           logger.info(
             "⚠ Message processing test skipped (test environment limitation)",
           );
@@ -228,8 +229,8 @@ export const ProjectStarterTestSuite: TestSuite = {
     {
       name: "agent_should_respond_to_hello_world",
       fn: async (runtime: IAgentRuntime) => {
-        // Test for specific hello world response
-        // This requires the HELLO_WORLD action to be available
+        // 特定のhello world応答のテスト
+        // これにはHELLO_WORLDアクションが利用可能である必要があります
 
         const helloWorldAction = runtime.actions.find(
           (a: Action) => a.name === "HELLO_WORLD",
@@ -247,10 +248,10 @@ export const ProjectStarterTestSuite: TestSuite = {
     {
       name: "agent_should_respond_to_casual_greetings",
       fn: async (runtime: IAgentRuntime) => {
-        // Test various casual greetings
+        // さまざまなカジュアルな挨拶をテスト
         const greetings = ["hey there!", "hi!", "hello", "what's up?", "howdy"];
 
-        // Just verify we can create messages with different greetings
+        // さまざまな挨拶でメッセージを作成できることを確認するだけ
         for (const greeting of greetings) {
           const message: Memory = {
             id: uuidv4() as UUID,
@@ -265,7 +266,7 @@ export const ProjectStarterTestSuite: TestSuite = {
             embedding: [],
           };
 
-          // Verify message structure is valid
+          // メッセージ構造が有効であることを確認
           if (!message.content.text) {
             throw new Error(
               `Invalid message created for greeting: ${greeting}`,
@@ -280,12 +281,12 @@ export const ProjectStarterTestSuite: TestSuite = {
     {
       name: "agent_should_maintain_conversation_context",
       fn: async (runtime: IAgentRuntime) => {
-        // Test that the agent can maintain context across messages
+        // エージェントがメッセージ間でコンテキストを維持できることをテスト
         try {
           const testRoomId = uuidv4() as UUID;
           const testUserId = uuidv4() as UUID;
 
-          // Create a context provider state
+          // コンテキストプロバイダーの状態を作成
           const state: State = {
             values: {},
             data: { conversationContext: true },
@@ -301,11 +302,11 @@ export const ProjectStarterTestSuite: TestSuite = {
       },
     },
 
-    // ===== Action & Provider Tests =====
+    // ===== アクション＆プロバイダーテスト =====
     {
       name: "hello_world_action_direct_execution",
       fn: async (runtime: IAgentRuntime) => {
-        // Test direct action execution if available
+        // 利用可能な場合は直接アクション実行をテスト
         const helloWorldAction = runtime.actions.find(
           (a: Action) => a.name === "HELLO_WORLD",
         );
@@ -317,7 +318,7 @@ export const ProjectStarterTestSuite: TestSuite = {
           return;
         }
 
-        // Create a test message
+        // テストメッセージを作成
         const message: Memory = {
           id: uuidv4() as UUID,
           entityId: uuidv4() as UUID,
@@ -351,7 +352,7 @@ export const ProjectStarterTestSuite: TestSuite = {
           return [];
         };
 
-        // Try direct action execution
+        // 直接アクション実行を試す
         await helloWorldAction.handler(
           runtime,
           message,
@@ -371,17 +372,17 @@ export const ProjectStarterTestSuite: TestSuite = {
       },
     },
 
-    // ===== Provider Tests =====
+    // ===== プロバイダーテスト =====
     {
       name: "hello_world_provider_test",
       fn: async (runtime: IAgentRuntime) => {
-        // Test provider functionality if available
+        // 利用可能な場合はプロバイダー機能をテスト
         if (!runtime.providers || runtime.providers.length === 0) {
           logger.info("⚠ No providers found, skipping provider test");
           return;
         }
 
-        // Find the HELLO_WORLD_PROVIDER if it exists
+        // HELLO_WORLD_PROVIDERが存在するかどうかを確認
         const helloWorldProvider = runtime.providers.find(
           (p: Provider) => p.name === "HELLO_WORLD_PROVIDER",
         );
@@ -393,7 +394,7 @@ export const ProjectStarterTestSuite: TestSuite = {
           return;
         }
 
-        // Create a mock message for provider
+        // プロバイダー用のモックメッセージを作成
         const mockMessage: Memory = {
           id: uuidv4() as UUID,
           entityId: uuidv4() as UUID,
@@ -413,14 +414,14 @@ export const ProjectStarterTestSuite: TestSuite = {
           text: "",
         };
 
-        // Get provider data
+        // プロバイダーデータを取得
         const providerData = await helloWorldProvider.get(
           runtime,
           mockMessage,
           mockState,
         );
 
-        // Verify provider returns expected data
+        // プロバイダーが期待されるデータを返すことを確認
         if (!providerData || typeof providerData !== "object") {
           throw new Error("Provider did not return valid data");
         }
@@ -429,11 +430,11 @@ export const ProjectStarterTestSuite: TestSuite = {
       },
     },
 
-    // ===== Service Tests =====
+    // ===== サービステスト =====
     {
       name: "starter_service_test",
       fn: async (runtime: IAgentRuntime) => {
-        // Test if the starter service is available
+        // スターターサービスが利用可能かどうかをテスト
         const starterService = runtime.getService("starter");
 
         if (!starterService) {
@@ -441,13 +442,13 @@ export const ProjectStarterTestSuite: TestSuite = {
           return;
         }
 
-        // Services have static start/stop methods, not instance methods
-        // Just verify the service exists
+        // サービスには静的なstart/stopメソッドがあり、インスタンスメソッドではない
+        // サービスが存在することを確認するだけ
         logger.info("✓ Starter service is available");
       },
     },
 
-    // ===== Memory & Database Tests =====
+    // ===== メモリ＆データベーステスト =====
     {
       name: "memory_system_should_store_and_retrieve_messages",
       fn: async (runtime: IAgentRuntime) => {
@@ -455,7 +456,7 @@ export const ProjectStarterTestSuite: TestSuite = {
           const testRoomId = uuidv4() as UUID;
           const testUserId = uuidv4() as UUID;
 
-          // Ensure connection exists
+          // 接続が存在することを確認
           await runtime.ensureConnection({
             entityId: testUserId,
             roomId: testRoomId,
@@ -466,7 +467,7 @@ export const ProjectStarterTestSuite: TestSuite = {
             type: ChannelType.DM,
           });
 
-          // Create test messages
+          // テストメッセージを作成
           const messages: Memory[] = [];
           for (let i = 0; i < 3; i++) {
             const message: Memory = {
@@ -478,23 +479,23 @@ export const ProjectStarterTestSuite: TestSuite = {
                 text: `Test message ${i + 1}`,
                 action: null,
               } as Content,
-              createdAt: Date.now() + i * 1000, // Stagger timestamps
+              createdAt: Date.now() + i * 1000, // タイムスタンプをずらす
               embedding: [],
             };
             messages.push(message);
 
-            // Store the message
+            // メッセージを保存
             await runtime.createMemory(message, "messages", false);
           }
 
-          // Retrieve messages
+          // メッセージを取得
           const retrievedMessages = await runtime.getMemories({
             roomId: testRoomId,
             count: 10,
             tableName: "messages",
           });
 
-          // Verify we got some messages back
+          // いくつかのメッセージが返されたことを確認
           if (!retrievedMessages || retrievedMessages.length === 0) {
             throw new Error("No messages retrieved from memory system");
           }
@@ -503,7 +504,7 @@ export const ProjectStarterTestSuite: TestSuite = {
             `✓ Memory system stored and retrieved ${retrievedMessages.length} messages`,
           );
         } catch (error) {
-          // Memory operations might fail in test environment
+          // メモリ操作はテスト環境で失敗する可能性がある
           logger.info(
             "⚠ Memory system test skipped (test environment limitation)",
           );
@@ -511,7 +512,7 @@ export const ProjectStarterTestSuite: TestSuite = {
       },
     },
 
-    // ===== Concurrent Processing Tests =====
+    // ===== 並行処理テスト =====
     {
       name: "agent_should_handle_multiple_concurrent_messages",
       fn: async (runtime: IAgentRuntime) => {
@@ -519,7 +520,7 @@ export const ProjectStarterTestSuite: TestSuite = {
           const testRoomId = uuidv4() as UUID;
           const testUserId = uuidv4() as UUID;
 
-          // Create multiple messages concurrently
+          // 複数のメッセージを同時に作成
           const messagePromises = Array.from({ length: 5 }, async (_, i) => {
             const message: Memory = {
               id: uuidv4() as UUID,
@@ -537,7 +538,7 @@ export const ProjectStarterTestSuite: TestSuite = {
             return runtime.createMemory(message, "messages", false);
           });
 
-          // Wait for all messages to be created
+          // すべてのメッセージが作成されるのを待つ
           await Promise.all(messagePromises);
 
           logger.info("✓ Successfully handled concurrent message creation");
@@ -549,11 +550,11 @@ export const ProjectStarterTestSuite: TestSuite = {
       },
     },
 
-    // ===== Configuration Tests =====
+    // ===== 設定テスト =====
     {
       name: "project_configuration_should_be_valid",
       fn: async (runtime: IAgentRuntime) => {
-        // Test database connection
+        // データベース接続をテスト
         try {
           const connection = await runtime.getConnection();
           if (connection) {
@@ -563,7 +564,7 @@ export const ProjectStarterTestSuite: TestSuite = {
           logger.info("⚠ Database connection test skipped");
         }
 
-        // Verify basic runtime configuration
+        // 基本的なランタイム設定を確認
         if (!runtime.agentId) {
           throw new Error("Runtime agentId is not configured");
         }
@@ -576,27 +577,27 @@ export const ProjectStarterTestSuite: TestSuite = {
       },
     },
 
-    // ===== Plugin System Tests =====
+    // ===== プラグインシステムテスト =====
     {
       name: "plugin_initialization_test",
       fn: async (runtime: IAgentRuntime) => {
-        // Test that plugins can be initialized
+        // プラグインが初期化できることをテスト
         if (!runtime.plugins) {
           throw new Error("Plugin system is not available");
         }
 
-        // Verify plugins array exists
+        // plugins配列が存在することを確認
         if (!Array.isArray(runtime.plugins)) {
           throw new Error("Plugins is not an array");
         }
 
         logger.info("✓ Plugin system allows registration");
 
-        // Count loaded plugins
+        // ロードされたプラグインをカウント
         const pluginCount = runtime.plugins.length;
         logger.info(`✓ Found ${pluginCount} plugins loaded`);
 
-        // Test specific plugin features if available
+        // 利用可能な場合は特定のプラグイン機能をテスト
         const hasActions = runtime.actions && runtime.actions.length > 0;
         const hasProviders = runtime.providers && runtime.providers.length > 0;
         const hasEvaluators =
@@ -615,3 +616,4 @@ export const ProjectStarterTestSuite: TestSuite = {
     },
   ],
 };
+

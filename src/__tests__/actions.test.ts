@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュールと、ElizaOSコア、各種ユーティリティをインポート
 import { describe, expect, it, spyOn, beforeAll, afterAll } from "bun:test";
 import plugin from "../plugin";
 import { logger } from "@elizaos/core";
@@ -18,10 +19,10 @@ import {
   createMockState,
 } from "./utils/core-test-utils";
 
-// Setup environment variables
+// 環境変数を設定
 dotenv.config();
 
-// Spy on logger to capture logs for documentation
+// ロガーをスパイして、ドキュメンテーション用のログをキャプチャ
 beforeAll(() => {
   spyOn(logger, "info");
   spyOn(logger, "error");
@@ -29,16 +30,16 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  // No global restore needed in bun:test;
+  // bun:testではグローバルなリストアは不要
 });
 
 describe("Actions", () => {
-  // Find the HELLO_WORLD action from the plugin
+  // プラグインからHELLO_WORLDアクションを検索
   const helloWorldAction = plugin.actions?.find(
     (action) => action.name === "HELLO_WORLD",
   );
 
-  // Run core tests on all plugin actions
+  // すべてのプラグインアクションに対してコアテストを実行
   it("should pass core action tests", () => {
     if (plugin.actions) {
       const coreTestResults = runCoreActionTests(plugin.actions);
@@ -47,17 +48,19 @@ describe("Actions", () => {
       expect(coreTestResults.formattedActions).toBeDefined();
       expect(coreTestResults.composedExamples).toBeDefined();
 
-      // Document the core test results
+      // コアテストの結果をドキュメント化
       documentTestResult("Core Action Tests", coreTestResults);
     }
   });
 
   describe("HELLO_WORLD Action", () => {
     it("should exist in the plugin", () => {
+      // HELLO_WORLDアクションがプラグインに存在することを確認
       expect(helloWorldAction).toBeDefined();
     });
 
     it("should have the correct structure", () => {
+      // HELLO_WORLDアクションが正しい構造を持つことを確認
       if (helloWorldAction) {
         expect(helloWorldAction).toHaveProperty("name", "HELLO_WORLD");
         expect(helloWorldAction).toHaveProperty("description");
@@ -71,6 +74,7 @@ describe("Actions", () => {
     });
 
     it("should have GREET and SAY_HELLO as similes", () => {
+      // similesにGREETとSAY_HELLOが含まれていることを確認
       if (helloWorldAction) {
         expect(helloWorldAction.similes).toContain("GREET");
         expect(helloWorldAction.similes).toContain("SAY_HELLO");
@@ -78,20 +82,21 @@ describe("Actions", () => {
     });
 
     it("should have at least one example", () => {
+      // 少なくとも1つの例が存在することを確認
       if (helloWorldAction && helloWorldAction.examples) {
         expect(helloWorldAction.examples.length).toBeGreaterThan(0);
 
-        // Check first example structure
+        // 最初の例の構造を確認
         const firstExample = helloWorldAction.examples[0];
-        expect(firstExample.length).toBeGreaterThan(1); // At least two messages
+        expect(firstExample.length).toBeGreaterThan(1); // 少なくとも2つのメッセージ
 
-        // First message should be a request
+        // 最初のメッセージはリクエストであるべき
         expect(firstExample[0]).toHaveProperty("name");
         expect(firstExample[0]).toHaveProperty("content");
         expect(firstExample[0].content).toHaveProperty("text");
         expect(firstExample[0].content.text).toContain("hello");
 
-        // Second message should be a response
+        // 2番目のメッセージはレスポンスであるべき
         expect(firstExample[1]).toHaveProperty("name");
         expect(firstExample[1]).toHaveProperty("content");
         expect(firstExample[1].content).toHaveProperty("text");
@@ -102,6 +107,7 @@ describe("Actions", () => {
     });
 
     it("should return true from validate function", async () => {
+      // validate関数がtrueを返すことを確認
       if (helloWorldAction) {
         const runtime = createMockRuntime();
         const mockMessage = createMockMessage("Hello!");
@@ -127,6 +133,7 @@ describe("Actions", () => {
     });
 
     it("should call back with hello world response from handler", async () => {
+      // handlerが"hello world"レスポンスでコールバックを呼び出すことを確認
       if (helloWorldAction) {
         const runtime = createMockRuntime();
         const mockMessage = createMockMessage("Hello!");
@@ -149,7 +156,7 @@ describe("Actions", () => {
             [],
           );
 
-          // Verify callback was called with the right content
+          // コールバックが正しい内容で呼び出されたことを確認
           expect(callbackResponse).toBeTruthy();
           expect(callbackResponse).toHaveProperty("text");
           expect(callbackResponse).toHaveProperty("actions");
@@ -169,3 +176,4 @@ describe("Actions", () => {
     });
   });
 });
+

@@ -1,71 +1,71 @@
 /**
- * E2E Support File
+ * E2Eサポートファイル
  *
- * This file is loaded automatically before E2E test files.
- * Use it to set up global configuration and custom commands.
+ * このファイルはE2Eテストファイルの前に自動的にロードされます。
+ * グローバル設定やカスタムコマンドの設定に使用します。
  */
 
 // ***********************************************************
-// This file is processed and loaded automatically before your test files.
-// You can change the location of this file or turn off processing using the
-// 'supportFile' config option.
+// このファイルは、テストファイルの前に自動的に処理およびロードされます。
+// このファイルの場所を変更したり、'supportFile'設定オプションを使用して
+// 処理をオフにしたりできます。
 // ***********************************************************
 
-// Import commands (shared with component tests)
+// コマンドをインポート（コンポーネントテストと共有）
 import "./commands";
 
-// Import Testing Library Cypress commands
+// Testing Library Cypressコマンドをインポート
 import "@testing-library/cypress/add-commands";
 
-// E2E-specific configurations
+// E2E固有の設定
 Cypress.on("uncaught:exception", (err, runnable) => {
-  // Prevent Cypress from failing the test on uncaught exceptions
-  // This is useful for E2E tests where third-party scripts might throw errors
+  // キャッチされなかった例外でCypressがテストを失敗させないようにする
+  // これは、サードパーティのスクリプトがエラーをスローする可能性があるE2Eテストで役立ちます
   console.error("Uncaught exception:", err);
   return false;
 });
 
-// Custom E2E commands
+// カスタムE2Eコマンド
 declare global {
   namespace Cypress {
     interface Chainable {
       /**
-       * Login to the application
-       * @param username - Username to login with
-       * @param password - Password to login with
+       * アプリケーションにログイン
+       * @param username - ログインに使用するユーザー名
+       * @param password - ログインに使用するパスワード
        */
       login(username?: string, password?: string): Chainable<void>;
 
       /**
-       * Wait for the application to be ready
+       * アプリケーションの準備が完了するまで待機
        */
       waitForApp(): Chainable<void>;
 
       /**
-       * Navigate to a specific agent chat
-       * @param agentId - ID of the agent to chat with
+       * 特定のエージェントチャットに移動
+       * @param agentId - チャットするエージェントのID
        */
       navigateToAgent(agentId?: string): Chainable<void>;
 
       /**
-       * Send a chat message and wait for response
-       * @param message - Message to send
+       * チャットメッセージを送信し、応答を待機
+       * @param message - 送信するメッセージ
        */
       sendChatMessage(message: string): Chainable<void>;
 
       /**
-       * Clear all application data
+       * すべてのアプリケーションデータをクリア
        */
       clearAppData(): Chainable<void>;
     }
   }
 }
 
-// Login command
+// ログインコマンド
 Cypress.Commands.add(
   "login",
   (username = "testuser", password = "testpass") => {
-    // Check if login is required
+    // ログインが必要か確認
     cy.get("body").then(($body) => {
       if (
         $body.find(
@@ -87,21 +87,21 @@ Cypress.Commands.add(
   },
 );
 
-// Wait for app to be ready
+// アプリの準備完了を待つコマンド
 Cypress.Commands.add("waitForApp", () => {
-  // Wait for any loading indicators to disappear
+  // ローディングインジケータが消えるまで待機
   cy.get('[data-testid="loading"], .loading, .spinner', {
     timeout: 10000,
   }).should("not.exist");
 
-  // Ensure the app container is visible
+  // アプリコンテナが表示されていることを確認
   cy.get('#root, #app, [data-testid="app"]').should("be.visible");
 
-  // Wait a bit for any animations
+  // アニメーションのために少し待機
   cy.wait(500);
 });
 
-// Navigate to agent
+// エージェントへのナビゲーションコマンド
 Cypress.Commands.add("navigateToAgent", (agentId?: string) => {
   if (agentId) {
     cy.visit(`/agent/${agentId}`);
@@ -113,58 +113,58 @@ Cypress.Commands.add("navigateToAgent", (agentId?: string) => {
   cy.waitForApp();
 });
 
-// Send chat message
+// チャットメッセージ送信コマンド
 Cypress.Commands.add("sendChatMessage", (message: string) => {
-  // Find and type in the input
+  // 入力を見つけて入力
   cy.get('input[type="text"], textarea, [contenteditable="true"]')
     .filter(":visible")
     .first()
     .clear()
     .type(message);
 
-  // Send the message
+  // メッセージを送信
   cy.get("button")
     .filter(':contains("Send"), [aria-label*="send"]')
     .first()
     .click();
 
-  // Wait for the message to appear
+  // メッセージが表示されるのを待機
   cy.contains(message, { timeout: 5000 }).should("be.visible");
 
-  // Wait for agent response
+  // エージェントの応答を待機
   cy.get('[data-testid*="agent"], [class*="agent"], [data-sender="agent"]', {
     timeout: 15000,
   }).should("exist");
 });
 
-// Clear app data
+// アプリデータクリアコマンド
 Cypress.Commands.add("clearAppData", () => {
   cy.window().then((win) => {
-    // Clear local storage
+    // ローカルストレージをクリア
     (win as any).localStorage.clear();
 
-    // Clear session storage
+    // セッションストレージをクリア
     (win as any).sessionStorage.clear();
 
-    // Clear cookies
+    // クッキーをクリア
     cy.clearCookies();
 
-    // Note: IndexedDB clearing is commented out due to TypeScript compatibility issues
-    // If your app uses IndexedDB, you may need to add custom clearing logic here
-    // Example:
+    // 注：IndexedDBのクリアはTypeScriptの互換性の問題でコメントアウトされています
+    // アプリがIndexedDBを使用している場合は、ここにカスタムクリアロジックを追加する必要があるかもしれません
+    // 例：
     // cy.window().its('indexedDB').invoke('deleteDatabase', 'your-db-name');
   });
 });
 
-// E2E-specific viewport settings
+// E2E固有のビューポート設定
 beforeEach(() => {
-  // Set a consistent viewport for E2E tests
+  // E2Eテスト用に一貫したビューポートを設定
   cy.viewport(1280, 720);
 });
 
-// Screenshot on failure
+// 失敗時のスクリーンショット
 Cypress.on("fail", (error, runnable) => {
-  // Take a screenshot when a test fails
+  // テストが失敗したときにスクリーンショットを撮る
   cy.screenshot(`failed-${runnable.parent?.title}-${runnable.title}`, {
     capture: "runner",
   });
@@ -172,28 +172,29 @@ Cypress.on("fail", (error, runnable) => {
 });
 
 /**
- * E2E TESTING UTILITIES
+ * E2Eテストユーティリティ
  *
- * These commands help with common E2E testing scenarios:
+ * これらのコマンドは、一般的なE2Eテストシナリオに役立ちます：
  *
- * 1. LOGIN FLOWS
- *    - cy.login() - Handle authentication
- *    - Supports different auth methods
+ * 1. ログインフロー
+ *    - cy.login() - 認証を処理
+ *    - さまざまな認証方法をサポート
  *
- * 2. NAVIGATION
- *    - cy.navigateToAgent() - Go to agent chat
- *    - cy.waitForApp() - Wait for app ready
+ * 2. ナビゲーション
+ *    - cy.navigateToAgent() - エージェントチャットに移動
+ *    - cy.waitForApp() - アプリの準備完了を待つ
  *
- * 3. INTERACTIONS
- *    - cy.sendChatMessage() - Send and verify messages
- *    - Handles async responses
+ * 3. インタラクション
+ *    - cy.sendChatMessage() - メッセージを送信して検証
+ *    - 非同期応答を処理
  *
- * 4. STATE MANAGEMENT
- *    - cy.clearAppData() - Reset application state
- *    - Clears all storage types
+ * 4. 状態管理
+ *    - cy.clearAppData() - アプリケーションの状態をリセット
+ *    - すべてのストレージタイプをクリア
  *
- * BEST PRACTICES:
- * - Use these commands for consistency
- * - Add new commands as patterns emerge
- * - Keep commands focused and reusable
+ * ベストプラクティス：
+ * - 一貫性のためにこれらのコマンドを使用
+ * - パターンが出現したら新しいコマンドを追加
+ * - コマンドを焦点を絞り、再利用可能に保つ
  */
+

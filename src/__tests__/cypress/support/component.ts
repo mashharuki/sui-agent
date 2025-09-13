@@ -1,24 +1,24 @@
 // ***********************************************************
-// This file is processed and loaded automatically before your test files.
-// You can change the location of this file or turn off processing using the
-// 'supportFile' config option.
+// このファイルは、テストファイルの前に自動的に処理およびロードされます。
+// このファイルの場所を変更したり、'supportFile'設定オプションを使用して
+// 処理をオフにしたりできます。
 // ***********************************************************
 
-// Import commands.js using ES2015 syntax:
+// ES2015構文を使用してcommands.jsをインポート：
 import "./commands";
 
-// Import Testing Library Cypress commands
+// Testing Library Cypressコマンドをインポート
 import "@testing-library/cypress/add-commands";
 
-// Import styles
+// スタイルをインポート
 import "../../../frontend/index.css";
 
-// Add custom TypeScript types
+// カスタムTypeScript型を追加
 declare global {
   namespace Cypress {
     interface Chainable {
       /**
-       * Custom command to mount React components
+       * Reactコンポーネントをマウントするカスタムコマンド
        * @example cy.mount(<Component />)
        */
       mount(component: React.ReactElement): Chainable<any>;
@@ -26,8 +26,9 @@ declare global {
   }
 }
 
-// Import React mount function
+// Reactマウント関数をインポート
 import { mount } from "@cypress/react";
 
-// Make mount available globally
+// マウントをグローバルに利用可能にする
 Cypress.Commands.add("mount", mount);
+

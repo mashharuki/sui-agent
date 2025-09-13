@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュール、ElizaOSコア、およびプロジェクトのインデックスとプラグインをインポート
 import { mock, spyOn } from "bun:test";
 import { Content, IAgentRuntime, Memory, State, logger } from "@elizaos/core";
 import {
@@ -11,19 +12,18 @@ import { character } from "../index";
 import plugin from "../plugin";
 
 /**
- * Creates an enhanced mock runtime for testing that includes the project's
- * character and plugin
+ * プロジェクトのキャラクターとプラグインを含む、テスト用に強化されたモックランタイムを作成します
  *
- * @param overrides - Optional overrides for the default mock methods and properties
- * @returns A mock runtime for testing
+ * @param overrides - デフォルトのモックメソッドとプロパティのオプションの上書き
+ * @returns テスト用のモックランタイム
  */
 export function createMockRuntime(
   overrides: Partial<IAgentRuntime> = {},
 ): IAgentRuntime {
-  // Create base mock runtime with default core utilities
+  // デフォルトのコアユーティリティでベースのモックランタイムを作成
   const baseRuntime = createCoreMockRuntime();
 
-  // Enhance with project-specific configuration
+  // プロジェクト固有の設定で強化
   const mockRuntime = {
     ...baseRuntime,
     character: character,
@@ -43,11 +43,11 @@ export function createMockRuntime(
 }
 
 /**
- * Creates a mock Message object for testing
+ * テスト用のモックMessageオブジェクトを作成します
  *
- * @param text - The message text
- * @param overrides - Optional overrides for the default memory properties
- * @returns A mock memory object
+ * @param text - メッセージテキスト
+ * @param overrides - デフォルトのメモリープロパティのオプションの上書き
+ * @returns モックメモリオブジェクト
  */
 export function createMockMessage(
   text: string,
@@ -61,10 +61,10 @@ export function createMockMessage(
 }
 
 /**
- * Creates a mock State object for testing
+ * テスト用のモックStateオブジェクトを作成します
  *
- * @param overrides - Optional overrides for the default state properties
- * @returns A mock state object
+ * @param overrides - デフォルトの状態プロパティのオプションの上書き
+ * @returns モック状態オブジェクト
  */
 export function createMockState(overrides: Partial<State> = {}): State {
   const baseState = createCoreMockState();
@@ -75,10 +75,10 @@ export function createMockState(overrides: Partial<State> = {}): State {
 }
 
 /**
- * Creates a standardized setup for testing with consistent mock objects
+ * 一貫したモックオブジェクトでテストするための標準化されたセットアップを作成します
  *
- * @param overrides - Optional overrides for default mock implementations
- * @returns An object containing mockRuntime, mockMessage, mockState, and callbackFn
+ * @param overrides - デフォルトのモック実装のオプションの上書き
+ * @returns mockRuntime、mockMessage、mockState、およびcallbackFnを含むオブジェクト
  */
 export function setupTest(
   options: {
@@ -88,19 +88,19 @@ export function setupTest(
     stateOverrides?: Partial<State>;
   } = {},
 ) {
-  // Create mock callback function
+  // モックコールバック関数を作成
   const callbackFn = mock();
 
-  // Create a message
+  // メッセージを作成
   const mockMessage = createMockMessage(
     options.messageText || "Test message",
     options.messageOverrides || {},
   );
 
-  // Create a state object
+  // 状態オブジェクトを作成
   const mockState = createMockState(options.stateOverrides || {});
 
-  // Create a mock runtime
+  // モックランタイムを作成
   const mockRuntime = createMockRuntime(options.runtimeOverrides || {});
 
   return {
@@ -111,16 +111,16 @@ export function setupTest(
   };
 }
 
-// Export other utility functions
+// 他のユーティリティ関数をエクスポート
 export { documentTestResult, runCoreActionTests };
 
-// Add spy on logger for common usage in tests
+// テストで共通して使用するためにロガーにスパイを追加
 export function setupLoggerSpies() {
   spyOn(logger, "info").mockImplementation(() => {});
   spyOn(logger, "error").mockImplementation(() => {});
   spyOn(logger, "warn").mockImplementation(() => {});
   spyOn(logger, "debug").mockImplementation(() => {});
 
-  // allow tests to restore originals
+  // テストがオリジナルを復元できるようにする
   return () => mock.restore();
 }

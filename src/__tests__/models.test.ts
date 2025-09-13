@@ -1,3 +1,4 @@
+// Bunのテスト関連モジュール、プラグイン、ElizaOSコア、dotenv、およびテストユーティリティをインポート
 import { describe, expect, it, spyOn, beforeAll, afterAll } from "bun:test";
 import plugin from "../plugin";
 import { ModelType, logger } from "@elizaos/core";
@@ -5,7 +6,7 @@ import type { IAgentRuntime } from "@elizaos/core";
 import dotenv from "dotenv";
 import { documentTestResult, createMockRuntime } from "./utils/core-test-utils";
 
-// Define a simplified version of the GenerateTextParams for testing
+// テスト用のGenerateTextParamsの簡略版を定義
 interface TestGenerateParams {
   prompt: string;
   stopSequences?: string[];
@@ -15,10 +16,10 @@ interface TestGenerateParams {
   presencePenalty?: number;
 }
 
-// Setup environment variables from .env file
+// .envファイルから環境変数を設定
 dotenv.config();
 
-// Spy on logger to capture logs for documentation
+// ドキュメンテーション用のログをキャプチャするためにロガーをスパイ
 beforeAll(() => {
   spyOn(logger, "info");
   spyOn(logger, "error");
@@ -26,13 +27,13 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  // No global restore needed in bun:test;
+  // bun:testではグローバルなリストアは不要
 });
 
 /**
- * Tests a model function with core testing patterns
- * @param modelType The type of model to test
- * @param modelFn The model function to test
+ * コアテストパターンでモデル関数をテストします
+ * @param modelType テストするモデルのタイプ
+ * @param modelFn テストするモデル関数
  */
 const runCoreModelTests = async (
   modelType: keyof typeof ModelType,
@@ -41,10 +42,10 @@ const runCoreModelTests = async (
     params: TestGenerateParams,
   ) => Promise<string>,
 ) => {
-  // Create a mock runtime for model testing
+  // モデルテスト用のモックランタイムを作成
   const mockRuntime = createMockRuntime();
 
-  // Test with basic parameters
+  // 基本的なパラメータでテスト
   const basicParams: TestGenerateParams = {
     prompt: `Test prompt for ${modelType}`,
     stopSequences: ["STOP"],
@@ -63,7 +64,7 @@ const runCoreModelTests = async (
     logger.error({ error: e }, `${modelType} model call failed:`);
   }
 
-  // Test with empty prompt
+  // 空のプロンプトでテスト
   const emptyParams: TestGenerateParams = {
     prompt: "",
   };
@@ -78,7 +79,7 @@ const runCoreModelTests = async (
     logger.error({ error: e }, `${modelType} empty prompt test failed:`);
   }
 
-  // Test with all parameters
+  // すべてのパラメータでテスト
   const fullParams: TestGenerateParams = {
     prompt: `Comprehensive test prompt for ${modelType}`,
     stopSequences: ["STOP1", "STOP2"],
@@ -107,6 +108,7 @@ const runCoreModelTests = async (
 
 describe("Plugin Models", () => {
   it("should have models defined", () => {
+    // プラグインにモデルが定義されていることを確認
     expect(plugin.models).toBeDefined();
     if (plugin.models) {
       expect(typeof plugin.models).toBe("object");
@@ -115,6 +117,7 @@ describe("Plugin Models", () => {
 
   describe("TEXT_SMALL Model", () => {
     it("should have a TEXT_SMALL model defined", () => {
+      // TEXT_SMALLモデルが定義されていることを確認
       if (plugin.models) {
         expect(plugin.models).toHaveProperty(ModelType.TEXT_SMALL);
         expect(typeof plugin.models[ModelType.TEXT_SMALL]).toBe("function");
@@ -122,6 +125,7 @@ describe("Plugin Models", () => {
     });
 
     it("should run core tests for TEXT_SMALL model", async () => {
+      // TEXT_SMALLモデルのコアテストを実行
       if (plugin.models && plugin.models[ModelType.TEXT_SMALL]) {
         const results = await runCoreModelTests(
           ModelType.TEXT_SMALL,
@@ -135,6 +139,7 @@ describe("Plugin Models", () => {
 
   describe("TEXT_LARGE Model", () => {
     it("should have a TEXT_LARGE model defined", () => {
+      // TEXT_LARGEモデルが定義されていることを確認
       if (plugin.models) {
         expect(plugin.models).toHaveProperty(ModelType.TEXT_LARGE);
         expect(typeof plugin.models[ModelType.TEXT_LARGE]).toBe("function");
@@ -142,6 +147,7 @@ describe("Plugin Models", () => {
     });
 
     it("should run core tests for TEXT_LARGE model", async () => {
+      // TEXT_LARGEモデルのコアテストを実行
       if (plugin.models && plugin.models[ModelType.TEXT_LARGE]) {
         const results = await runCoreModelTests(
           ModelType.TEXT_LARGE,
@@ -153,3 +159,4 @@ describe("Plugin Models", () => {
     });
   });
 });
+

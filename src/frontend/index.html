@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ElizaOS Frontend</title>
     <script>
-      // This will be injected by the server in production
+      // このスクリプトは、本番環境ではサーバーによって動的に注入されます。
+      // エージェントIDやAPIのベースURLなどの設定情報を含みます。
       window.ELIZA_CONFIG = {
-        agentId: 'test-agent-id',
-        apiBase: 'http://localhost:3000',
+        agentId: 'test-agent-id', // テスト用のエージェントID
+        apiBase: 'http://localhost:3000', // ローカル開発用のAPIベースURL
       };
     </script>
   </head>
   <body>
+    <!-- Reactアプリケーションがマウントされるルート要素 -->
     <div id="root"></div>
+    <!-- Reactアプリケーションのエントリーポイントとなるスクリプトを読み込みます -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
+
