@@ -43,6 +43,7 @@
     "zod": "3.24.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.2.4",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -63,8 +64,8 @@
     "test:coverage": "bun run test:install && bun test --coverage",
     "test:watch": "bun run test:install && bun test --watch",
     "test:install": "node scripts/install-test-deps.js",
-    "format": "prettier --write ./src",
-    "format:check": "prettier --check ./src",
+    "format": "npx @biomejs/biome format --write .",
+    "format:check": "npx @biomejs/biome format --write .",
     "check-all": "bun run type-check && bun run format:check && bun run test",
     "cy:open": "bun run test:install && cypress open",
     "cy:run": "bun run test:install && cypress run --component",
