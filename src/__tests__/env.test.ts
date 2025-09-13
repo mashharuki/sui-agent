@@ -8,8 +8,6 @@ describe("Environment Setup", () => {
       "package.json",
       "tsconfig.json",
       "tsconfig.build.json",
-      "tsup.config.ts",
-      "bunfig.toml",
     ];
 
     for (const file of requiredFiles) {
@@ -69,21 +67,13 @@ describe("Environment Setup", () => {
     expect(tsconfig.compilerOptions).toHaveProperty("esModuleInterop");
   });
 
-  it("should have a valid tsup.config.ts for building", () => {
-    const tsupConfigPath = path.join(process.cwd(), "tsup.config.ts");
-    expect(fs.existsSync(tsupConfigPath)).toBe(true);
-
-    const tsupConfig = fs.readFileSync(tsupConfigPath, "utf8");
-    expect(tsupConfig).toContain("defineConfig");
-    expect(tsupConfig).toContain("entry:");
-    expect(tsupConfig).toContain("src/index.ts");
-  });
+  
 
   it("should have a valid README.md file", () => {
     const readmePath = path.join(process.cwd(), "README.md");
     expect(fs.existsSync(readmePath)).toBe(true);
 
     const readme = fs.readFileSync(readmePath, "utf8");
-    expect(readme).toContain("# Project Starter");
+    expect(readme).toContain("# sui-agent");
   });
 });

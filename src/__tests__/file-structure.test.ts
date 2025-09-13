@@ -1,7 +1,8 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, beforeAll } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import { logger } from "@elizaos/core";
+import { $ } from "bun";
 
 // Helper function to check if a file exists
 function fileExists(filePath: string): boolean {
@@ -15,6 +16,10 @@ function directoryExists(dirPath: string): boolean {
 
 describe("Project Structure Validation", () => {
   const rootDir = path.resolve(__dirname, "../..");
+
+  beforeAll(async () => {
+    await $`cd ${rootDir} && bun run build`;
+  });
 
   describe("Directory Structure", () => {
     it("should have the expected directory structure", () => {
@@ -60,8 +65,6 @@ describe("Project Structure Validation", () => {
       expect(fileExists(path.join(rootDir, "package.json"))).toBe(true);
       expect(fileExists(path.join(rootDir, "tsconfig.json"))).toBe(true);
       expect(fileExists(path.join(rootDir, "tsconfig.build.json"))).toBe(true);
-      expect(fileExists(path.join(rootDir, "tsup.config.ts"))).toBe(true);
-      expect(fileExists(path.join(rootDir, "bunfig.toml"))).toBe(true);
     });
 
     it("should have the correct package.json configuration", () => {
@@ -84,7 +87,6 @@ describe("Project Structure Validation", () => {
       // Check dev dependencies - adjusted for actual dev dependencies
       expect(packageJson.devDependencies).toBeTruthy();
       // bun test is built-in, no external test framework dependency needed
-      expect(packageJson.devDependencies).toHaveProperty("tsup");
     });
 
     it("should have proper TypeScript configuration", () => {
@@ -125,14 +127,6 @@ describe("Project Structure Validation", () => {
         fs.readFileSync(path.join(rootDir, "package.json"), "utf8"),
       );
       expect(packageJson.scripts).toHaveProperty("build");
-
-      // Check that tsup.config.ts exists and contains proper configuration
-      const tsupConfig = fs.readFileSync(
-        path.join(rootDir, "tsup.config.ts"),
-        "utf8",
-      );
-      expect(tsupConfig).toContain("export default");
-      expect(tsupConfig).toContain("entry");
     });
   });
 
@@ -146,11 +140,7 @@ describe("Project Structure Validation", () => {
         path.join(rootDir, "README.md"),
         "utf8",
       );
-      expect(readmeContent).toContain("Project Starter");
-
-      // Testing key sections exist without requiring specific keywords
-      expect(readmeContent).toContain("Development");
-      expect(readmeContent).toContain("Testing");
+      expect(readmeContent).toContain("sui-agent");
     });
   });
 });

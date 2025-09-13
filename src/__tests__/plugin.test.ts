@@ -101,11 +101,7 @@ function createRealRuntime() {
       getKeys: async (pattern: string) => [],
     },
     getService: (serviceType: string) => {
-      // Get from cache or create new
-      if (!services.has(serviceType)) {
-        services.set(serviceType, createService(serviceType));
-      }
-
+      // Get from cache
       return services.get(serviceType);
     },
     registerService: (serviceType: string, service: any) => {
@@ -261,8 +257,19 @@ describe("Plugin Models", () => {
 });
 
 describe("StarterService", () => {
+  let originalGetService: any;
+  let runtime: any;
+
+  beforeEach(() => {
+    runtime = createRealRuntime();
+    originalGetService = runtime.getService;
+  });
+
+  afterEach(() => {
+    runtime.getService = originalGetService;
+  });
+
   it("should start the service", async () => {
-    const runtime = createRealRuntime();
     let startResult;
     let error: Error | null = null;
 
@@ -291,10 +298,9 @@ describe("StarterService", () => {
   });
 
   it("should throw an error on startup if the service is already registered", async () => {
-    const runtime = createRealRuntime();
-
     // First registration should succeed
     const result1 = await StarterService.start(runtime as any);
+    runtime.registerService(StarterService.serviceType, result1);
     expect(result1).toBeTruthy();
 
     let startupError: Error | null = null;
@@ -319,7 +325,6 @@ describe("StarterService", () => {
   });
 
   it("should stop the service", async () => {
-    const runtime = createRealRuntime();
     let error: Error | null = null;
 
     try {
@@ -350,14 +355,12 @@ describe("StarterService", () => {
   });
 
   it("should throw an error when stopping a non-existent service", async () => {
-    const runtime = createRealRuntime();
     // Don't register a service, so getService will return null
 
     let error: Error | null = null;
 
     try {
       // We'll patch the getService function to ensure it returns null
-      const originalGetService = runtime.getService;
       runtime.getService = () => null;
 
       await StarterService.stop(runtime as any);
@@ -383,10 +386,9 @@ describe("StarterService", () => {
   });
 
   it("should stop a registered service", async () => {
-    const runtime = createRealRuntime();
-
     // First start the service
     const startResult = await StarterService.start(runtime as any);
+    runtime.registerService(StarterService.serviceType, startResult);
     expect(startResult).toBeTruthy();
 
     let stopError: Error | unknown = null;

@@ -26,13 +26,7 @@ const configSchema = z.object({
   EXAMPLE_PLUGIN_VARIABLE: z
     .string()
     .min(1, "Example plugin variable is not provided")
-    .optional()
-    .transform((val) => {
-      if (!val) {
-        console.warn("Warning: Example plugin variable is not provided");
-      }
-      return val;
-    }),
+    .optional(),
 });
 
 /**
@@ -168,6 +162,9 @@ export class StarterService extends Service {
 
   static async start(runtime: IAgentRuntime) {
     logger.info("*** Starting starter service ***");
+    if (runtime.getService(StarterService.serviceType)) {
+      throw new Error("Starter service already registered");
+    }
     const service = new StarterService(runtime);
     return service;
   }

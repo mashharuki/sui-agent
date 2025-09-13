@@ -64,6 +64,7 @@ async function build() {
         );
         const sizeMB = (totalSize / 1024 / 1024).toFixed(2);
         console.log(`✓ Built ${result.outputs.length} file(s) - ${sizeMB}MB`);
+        console.log(result);
 
         return result;
       })(),

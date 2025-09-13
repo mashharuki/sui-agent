@@ -29,9 +29,6 @@
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"]
     },
-    "deepwiki": {
-      "url": "https://mcp.deepwiki.com/sse"
-    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
@@ -39,9 +36,9 @@
         "@modelcontextprotocol/server-sequential-thinking"
       ]
     },
-    "OpenZeppelinSolidityContracts": {
-      "command": "npx",
-      "args": ["mcp-remote", "https://mcp.openzeppelin.com/contracts/solidity/mcp"]
+    "serena": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server"]
     }
   }
 }
