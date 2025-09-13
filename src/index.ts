@@ -4,14 +4,20 @@ import {
   type Project,
   type ProjectAgent,
 } from "@elizaos/core";
-import starterPlugin from "./plugin.ts";
-import { character } from "./character.ts";
+import starterPlugin from "./plugins/plugin.ts";
+import { character } from "./characters/sample.ts";
 
+/**
+ * デフォルトのキャラクター
+ */
 const initCharacter = ({ runtime }: { runtime: IAgentRuntime }) => {
   logger.info("Initializing character");
   logger.info({ name: character.name }, "Name:");
 };
 
+/**
+ * Project Agent インスタンスを初期化
+ */
 export const projectAgent: ProjectAgent = {
   character,
   init: async (runtime: IAgentRuntime) => await initCharacter({ runtime }),
@@ -21,7 +27,5 @@ export const projectAgent: ProjectAgent = {
 const project: Project = {
   agents: [projectAgent],
 };
-
-export { character } from "./character.ts";
 
 export default project;
