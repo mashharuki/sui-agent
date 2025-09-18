@@ -1,0 +1,20 @@
+
+{
+  "name": "SUI Agent Dev Container",
+  "dockerFile": "../Dockerfile",
+  "workspaceFolder": "/app",
+  "forwardPorts": [
+    3000,
+    5173
+  ],
+  "postCreateCommand": "bun install && npm install -g @elizaos/cli",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "biomejs.biome",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "remoteUser": "node"
+}
